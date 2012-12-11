@@ -1,0 +1,475 @@
+package com.kab.channel66;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.apphance.android.Apphance;
+
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.myjson.Gson;
+import com.kab.channel66.R;
+
+import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
+import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
+import io.vov.vitamio.widget.VideoView;
+import android.net.Uri;
+import android.os.Bundle;
+
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract.CommonDataKinds.Event;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+//import android.util.Log;
+import com.apphance.android.Log;
+import android.view.Menu;
+import android.webkit.HttpAuthHandler;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+
+
+
+public class WebLogin extends Activity {
+
+	private WebView mLoginwebView;
+	private WebViewClient mClient;
+	private Events events;
+	
+	private ProgressDialog myProgressDialog;
+	JSONObject serverJSON = null;
+	public class JavaScriptInterface {
+	    Context mContext;
+
+	    /** Instantiate the interface and set the context */
+	    JavaScriptInterface(Context c) {
+	        mContext = c;
+	    }
+
+	    /** Show a toast from the web page */
+	    public void showToast(String toast) {
+	        Toast.makeText(mContext, toast, Toast.LENGTH_LONG).show();
+	    }
+	   
+	}
+	public static final String APP_KEY = "54a42bcfd5ce353a43b79e786acd37bf5bf4a62a";
+//	private CheckUpdateTask checkUpdateTask;
+	
+	
+	
+    @SuppressLint({ "SetJavaScriptEnabled", "NewApi", "NewApi", "NewApi" })
+	@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_web_login);
+//        Apphance.startNewSession(this, APP_KEY, Apphance.Mode.Silent);
+//	    Apphance.setReportOnShakeEnabled(true);
+//        System.setProperty("http.keepAlive", "false");
+//
+//	    UpdateActivity.iconDrawableId = R.drawable.icon;
+//	    checkForUpdates();
+	  //  StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+	  //    StrictMode.setThreadPolicy(policy);
+        
+        
+        mLoginwebView = (WebView) findViewById(R.id.webloginview);
+        myProgressDialog = new ProgressDialog(this);
+        myProgressDialog.show();
+        
+        
+         JSONParser parser = new JSONParser();
+         parser.execute("http://mobile.kbb1.com/kab_channel/sviva_tova/jsonresponseexample.json");
+        
+         try {
+        	 serverJSON = parser.get();
+        	 myProgressDialog.hide();
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ExecutionException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+         
+        JSONObject returned_Val = serverJSON;
+        String time_stamp = null;
+        //test events
+        try {
+        	if(returned_Val==null)
+        	{
+        		Toast.makeText(this, "Could not retrieve data from server",5);
+        		return;
+        	}
+			time_stamp = returned_Val.getString("time_stamp");
+			
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        events = new Events(returned_Val, getApplicationContext());
+        events.parse();
+        
+        ///
+          try {
+        	
+        	
+			io.vov.vitamio.VitamioInstaller.checkVitamioInstallation(this);
+		} catch (VitamioNotCompatibleException e) {
+			// TODO Auto-generated catch block
+			AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
+			chooseToInstall.setTitle("Install missing plug-in");
+			
+			chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int which) {
+			      // here you can add functions
+				   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+				    .setData(Uri.parse("market://details?id="+io.vov.vitamio.VitamioInstaller.getCompatiblePackage()));
+				startActivity(goToMarket); 
+ 				   
+ 				 
+    	    		
+			   }
+			});
+			chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
+ 			   public void onClick(DialogInterface dialog, int which) {
+ 			      // here you can add functions
+ 				  finish();
+ 			   }
+ 			});
+			chooseToInstall.setIcon(R.drawable.icon);
+			chooseToInstall.show();
+			
+		} catch (VitamioNotFoundException e) {
+			// TODO Auto-generated catch block
+			AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
+			chooseToInstall.setTitle("Missing plug-in");
+			chooseToInstall.setMessage("Install plug-in from Google play?");
+			chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int which) {
+			      // here you can add functions
+				   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+				    .setData(Uri.parse("market://details?id="+io.vov.vitamio.VitamioInstaller.getCompatiblePackage()));
+				startActivity(goToMarket); 
+ 				   
+ 				 
+    	    		
+			   }
+			});
+			chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
+ 			   public void onClick(DialogInterface dialog, int which) {
+ 			      // here you can add functions
+ 				  finish();
+ 			   }
+ 			});
+			chooseToInstall.setIcon(R.drawable.icon);
+			chooseToInstall.show();
+			e.printStackTrace();
+		}
+		
+        
+        mClient = new WebViewClient()
+        	{
+        	    @Override
+        	    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        	    	 Boolean success;
+        	    	if(url.contains("http://icecast.kab.tv"))
+    	    		{
+    	    			
+    	    		//	if(!checkAvailability(url))
+    	    		//		return;
+    	    			StreamAvailabilityChecker checker = new StreamAvailabilityChecker();
+    	    			checker.execute(url);
+    	    			try {
+							if(!checker.get())
+							{
+								 Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
+	     	    					
+	     	    					startActivity(intent);
+								return true;
+							}
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    	    			
+    	    		}
+        	    	if(url.contains("login"))
+    	    		{
+    	    			 SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    	    			 SharedPreferences.Editor editor = userInfoPreferences.edit();
+    	    			 editor.putBoolean("activated", false);
+    	    			  success = editor.commit();
+    		    			
+    	    		}
+        	    	else
+        	    	{
+        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
+    	    			 editor.putBoolean("activated", true);
+    	    			  success = editor.commit();
+        	    	}
+        	         view.loadUrl(url);
+        	        return true;
+        	    }
+    	    
+        	    @Override
+        	    public void onReceivedHttpAuthRequest (WebView view, HttpAuthHandler handler, String host, String realm)
+        	    {
+        	    	Log.v("WebViewClient","got auth request");
+        	    	
+        	    }
+        	    @Override
+        	    public void onPageFinished(WebView view, final String url)
+        	    {
+        	    	Log.v("WebViewClient","page finished");
+        	    	if(url.contains("http://kabbalahgroup.info/"))
+        	    	{
+        	    		//remove the type of login
+        	    		//mLoginwebView.loadUrl("javascript:(function() { " + "document.getElementsByTag('fieldset')[0].style.display = 'none'; " + "})()");
+        	    		mLoginwebView.loadUrl("javascript:(function() { " + "elem = document.getElementsByTag('fieldset'); if (elem) {elem.style.display = 'none; ';})()");
+        	    	}
+        	    	//check what language what clicked
+        	    	if(url.contains("http://kabbalahgroup.info/internet/en/mobile") || url.contains("http://icecast.kab.tv"))
+        	    	{
+        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+       	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
+   	    			 editor.putBoolean("activated", true);
+   	    			  Boolean success = editor.commit();
+   	    			  
+        	    		//if got here then move to video
+        	    		if(url.contains("http://icecast.kab.tv"))
+        	    		{
+        	    			
+        	    		//	if(!checkAvailability(url))
+        	    		//		return;
+        	    			StreamAvailabilityChecker checker = new StreamAvailabilityChecker();
+        	    			checker.execute(url);
+        	    			try {
+								if(!checker.get())
+									return;
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (ExecutionException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+        	    			
+        	    		
+	    					
+	    					//Check which lang was clicked
+   	    				  Set<String> keyset = events.locale.keySet();
+   	    				 String url1 = null;
+   	    				String jsonrep = null;
+   	    				final ArrayList<String> streamList = new ArrayList<String>();
+   	    				
+   	    				  for(int i=0;i<keyset.size();i++)
+   	    				  {
+   	    					 
+   	    					  if(url.contains(keyset.toArray()[i].toString()))
+   	    					  {
+   	    						 url1=   (events.locale.get(keyset.toArray()[i])).pages.get(0).urls.urlslist.get(0).url_value.toString();
+   	    						 Log.e("url val", url1);
+   	    						 
+   	    						 //build parameters to pass to list
+   	    						 for(int j=0;j<(events.locale.get(keyset.toArray()[i])).pages.size();j++)
+   	    						 {
+   	    							 
+   	    						 jsonrep = new Gson().toJson((events.locale.get(keyset.toArray()[i])).pages.get(j));
+   	    						 streamList.add(jsonrep);
+   	    						 }
+   	    						 EasyTracker.getTracker().trackEvent("web login", "lang", keyset.toArray()[i].toString(),0L);
+        	    				  
+   	    						 
+   	    					  }
+   	    				  }
+   	    				  
+   	    				  //check if no video available then go straight to audio
+   	    				  
+	    					
+        	    			//ask user if he wants audio or video
+        	    			AlertDialog chooseVideoAudio = new AlertDialog.Builder(WebLogin.this).create();
+        	    			chooseVideoAudio.setTitle("Video or Audio?");
+        	    			chooseVideoAudio.setButton("Audio", new DialogInterface.OnClickListener() {
+        	    			   public void onClick(DialogInterface dialog, int which) {
+        	    			      // here you can add functions
+        	    				   //Audio selected
+        	    				   EasyTracker.getTracker().trackEvent("web login", "button pressed", "audio",0L);
+         	    				   
+         	    				   Uri uri = Uri.parse(url);
+         	    				  Intent player = new Intent(Intent.ACTION_VIEW,uri);
+         	    				 
+          	    				 // player.setDataAndType(uri, "mp3");
+        	    				   //player.putExtra("path", url.toString());
+        	    				   //player.putExtra("type", "audio");
+        	        	    		startActivity(player);
+        	        	    		
+        	    			   }
+        	    			});
+        	    			chooseVideoAudio.setButton2("Video", new DialogInterface.OnClickListener() {
+         	    			   public void onClick(DialogInterface dialog, int which) {
+         	    			      // here you can add functions
+         	    				  EasyTracker.getTracker().trackEvent("web login", "button pressed", "video",0L);
+         	    				  
+
+         	    			/*	  //Check which lang was clicked
+         	    				  Set<String> keyset = events.locale.keySet();
+         	    				 String url1 = null;
+         	    				String jsonrep = null;
+         	    				ArrayList<String> streamList = new ArrayList<String>();
+         	    				
+         	    				  for(int i=0;i<keyset.size();i++)
+         	    				  {
+         	    					 
+         	    					  if(url.contains(keyset.toArray()[i].toString()))
+         	    					  {
+         	    						 url1=   (events.locale.get(keyset.toArray()[i])).pages.get(0).urls.urlslist.get(0).url_value.toString();
+         	    						 Log.e("url val", url1);
+         	    						 
+         	    						 //build parameters to pass to list
+         	    						 for(int j=0;j<(events.locale.get(keyset.toArray()[i])).pages.size();j++)
+         	    						 {
+         	    							 
+         	    						 jsonrep = new Gson().toJson((events.locale.get(keyset.toArray()[i])).pages.get(j));
+         	    						 streamList.add(jsonrep);
+         	    						 }
+         	    						 
+         	    					  }
+         	    				  }
+         	    				  */
+         	    				 Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
+     	    					intent.putStringArrayListExtra("channel",streamList);
+     	    					startActivity(intent);
+         	    				  
+         	    			   }
+
+							
+         	    			});
+        	    			chooseVideoAudio.setIcon(R.drawable.icon);
+        	    			chooseVideoAudio.show();
+        	    			
+        	    			
+        	    		}
+        	    		
+        	    	}
+        	    	
+        	    }
+        	   
+        	
+        };
+        
+        
+        mLoginwebView.setWebViewClient(mClient);
+        mLoginwebView.getSettings().setJavaScriptEnabled(true);
+        mLoginwebView.addJavascriptInterface(new JavaScriptInterface(this), "Android");
+        
+        String url = new String("http://kabbalahgroup.info/");
+        mLoginwebView.loadUrl(url);
+        
+        
+        
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_web_login, menu);
+        return true;
+    }
+//    @Override
+//	  public void onResume() {
+//	    super.onResume();
+//	    checkForCrashes();
+//	  }
+//	private void checkForUpdates() {
+//	    checkUpdateTask = (CheckUpdateTask)getLastNonConfigurationInstance();
+//	    if (checkUpdateTask != null) {
+//	      checkUpdateTask.attach(this);
+//	    }
+//	    else {
+//	      checkUpdateTask = new CheckUpdateTask(this, "http://10.0.0.6/", "io.vov.android.vitamio.demo");
+//	      checkUpdateTask.execute();
+//	    }
+//	  }
+
+//	  @Override
+//	  public Object onRetainNonConfigurationInstance() {
+//	    checkUpdateTask.detach();
+//	    return checkUpdateTask;
+//	  }
+	  
+//	  private void checkForCrashes() {
+//		    CrashManager.register(this, "http://10.0.0.6/", "io.vov.android.vitamio.demo");
+//		  }
+private boolean checkAvailability(String url)
+{
+	//check availability of stream
+	
+	URLConnection cn = null;
+	try {
+
+		cn = new URL(url).openConnection();
+	} catch (MalformedURLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	try {
+		cn.connect();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	InputStream stream = null;
+	try {
+		stream = cn.getInputStream();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	if (stream == null) {
+
+	Log.e(getClass().getName(),url);
+	
+	mLoginwebView.loadUrl("javascript:Android.showToast('Currently no broadcast, please try again later')");
+	
+	return false;
+	}
+	return true;
+}
+
+}

@@ -51,7 +51,7 @@ public class VideoPlayerActivity extends Activity implements OnCompletionListene
 	private float mBrightness = -1f;
 	/** 当前缩放模式 */
 	//private int mLayout = VideoView.VIDEO_LAYOUT_ZOOM;
-	private int mLayout = VideoView.VIDEO_LAYOUT_SCALE;
+	private int mLayout = VideoView.VIDEO_LAYOUT_ZOOM;
 	private GestureDetector mGestureDetector;
 	private MediaController mMediaController;
 	private ProgressDialog progress;
@@ -103,6 +103,9 @@ public class VideoPlayerActivity extends Activity implements OnCompletionListene
 			if(percent>98){
 				progress.hide();
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+				if (mLayout == VideoView.VIDEO_LAYOUT_ZOOM) //this is done due to a bug on some devices that the video won't start if layout is not zoom
+					mLayout = VideoView.VIDEO_LAYOUT_SCALE;
+					mVideoView.setVideoLayout(mLayout, 0);
 				
 			}
 		}

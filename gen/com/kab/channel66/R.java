@@ -48,17 +48,18 @@ public final class R {
         public static final int video_volumn_bg=0x7f020017;
     }
     public static final class id {
+        public static final int Autocheck=0x7f090014;
         public static final int KL_ST_android=0x7f09000d;
         public static final int btn_login=0x7f090005;
+        public static final int channel66=0x7f090013;
         public static final int et_pw=0x7f090004;
         public static final int et_un=0x7f090002;
-        public static final int login=0x7f090014;
+        public static final int login=0x7f090015;
         public static final int mediacontroller_file_name=0x7f09000b;
         public static final int mediacontroller_play_pause=0x7f090007;
         public static final int mediacontroller_seekbar=0x7f09000a;
         public static final int mediacontroller_time_current=0x7f090008;
         public static final int mediacontroller_time_total=0x7f090009;
-        public static final int menu_settings=0x7f090013;
         public static final int operation_bg=0x7f090010;
         public static final int operation_full=0x7f090011;
         public static final int operation_percent=0x7f090012;
@@ -88,6 +89,8 @@ public final class R {
         public static final int VideoView_error_text_unknown=0x7f040009;
         public static final int VideoView_error_title=0x7f040007;
         public static final int app_name=0x7f040001;
+        public static final int autocheck=0x7f04000e;
+        public static final int channel66=0x7f04000d;
         /** Replace placeholder ID with your tracking ID
          */
         public static final int ga_trackingId=0x7f040000;

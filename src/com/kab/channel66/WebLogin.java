@@ -33,8 +33,11 @@ import com.kab.channel66.R;
 import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
 import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
 import io.vov.vitamio.widget.VideoView;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.CommonDataKinds.Event;
@@ -52,21 +55,26 @@ import android.content.res.Resources;
 //import android.util.Log;
 import com.apphance.android.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.webkit.HttpAuthHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.Toast;
 
 
 
 
-public class WebLogin extends Activity {
+public class WebLogin extends Activity implements WebCallbackInterface {
 
 	private WebView mLoginwebView;
 	private WebViewClient mClient;
 	private Events events;
 	
-	private ProgressDialog myProgressDialog;
+	private ProgressDialog myProgressDialog = null;
+	private StreamAvailabilityChecker myChecker = null;
+	PowerManager.WakeLock wl = null;
 	JSONObject serverJSON = null;
 	public class JavaScriptInterface {
 	    Context mContext;
@@ -205,17 +213,22 @@ public class WebLogin extends Activity {
         	    	if(url.contains("http://icecast.kab.tv"))
     	    		{
     	    			
-    	    		//	if(!checkAvailability(url))
-    	    		//		return;
+    	    		
     	    			StreamAvailabilityChecker checker = new StreamAvailabilityChecker();
     	    			checker.execute(url);
+    	    			//checker.execute("http://icecast.kab.tv/live1-heb-574bcfd5.mp31");
     	    			try {
 							if(!checker.get())
 							{
-								 Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
-	     	    					
-	     	    					startActivity(intent);
+								setValid(false);
+								mLoginwebView.loadUrl("javascript:Android.showToast('Currently no broadcast')");
+								
 								return true;
+							}
+							else
+							{
+								
+								setValid(true);
 							}
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
@@ -228,18 +241,21 @@ public class WebLogin extends Activity {
     	    		}
         	    	if(url.contains("login"))
     	    		{
-    	    			 SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    	    			 SharedPreferences.Editor editor = userInfoPreferences.edit();
-    	    			 editor.putBoolean("activated", false);
-    	    			  success = editor.commit();
+//    	    			 SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//    	    			 SharedPreferences.Editor editor = userInfoPreferences.edit();
+//    	    			 editor.putBoolean("activated", false);
+//    	    			  success = editor.commit();
+    	    			  setActivated(false);
+    	    			  
     		    			
     	    		}
         	    	else
         	    	{
-        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
-    	    			 editor.putBoolean("activated", true);
-    	    			  success = editor.commit();
+//        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
+//    	    			 editor.putBoolean("activated", true);
+//    	    			  success = editor.commit();
+    	    			  setActivated(true);
         	    	}
         	         view.loadUrl(url);
         	        return true;
@@ -259,15 +275,16 @@ public class WebLogin extends Activity {
         	    	{
         	    		//remove the type of login
         	    		//mLoginwebView.loadUrl("javascript:(function() { " + "document.getElementsByTag('fieldset')[0].style.display = 'none'; " + "})()");
-        	    		mLoginwebView.loadUrl("javascript:(function() { " + "elem = document.getElementsByTag('fieldset'); if (elem) {elem.style.display = 'none; ';})()");
+        	    		//mLoginwebView.loadUrl("javascript:(function() { " + "elem = document.getElementsByTag('fieldset'); if (elem) {elem.style.display = 'none; ';})()");
         	    	}
         	    	//check what language what clicked
         	    	if(url.contains("http://kabbalahgroup.info/internet/en/mobile") || url.contains("http://icecast.kab.tv"))
         	    	{
-        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-       	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
-   	    			 editor.putBoolean("activated", true);
-   	    			  Boolean success = editor.commit();
+//        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//       	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
+//   	    			 editor.putBoolean("activated", true);
+//   	    			  Boolean success = editor.commit();
+   	    			 setActivated(true);
    	    			  
         	    		//if got here then move to video
         	    		if(url.contains("http://icecast.kab.tv"))
@@ -276,10 +293,17 @@ public class WebLogin extends Activity {
         	    		//	if(!checkAvailability(url))
         	    		//		return;
         	    			StreamAvailabilityChecker checker = new StreamAvailabilityChecker();
+        	    			
         	    			checker.execute(url);
         	    			try {
 								if(!checker.get())
+								{
+									mLoginwebView.loadUrl("javascript:Android.showToast('Currently no broadcast, please try again later')");
 									return;
+								}
+						
+									
+
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -403,11 +427,24 @@ public class WebLogin extends Activity {
         
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_web_login, menu);
-        return true;
+    
+    private void setValid(boolean val)
+    {
+    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+		SharedPreferences.Editor edit = shared.edit();
+		edit.putBoolean("valid", val);
+		edit.commit();
     }
+    
+	private void setActivated(boolean val)
+    {
+    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+		SharedPreferences.Editor edit = shared.edit();
+		edit.putBoolean("activated", val);
+		edit.commit();
+    }
+	
+   
 //    @Override
 //	  public void onResume() {
 //	    super.onResume();
@@ -472,4 +509,75 @@ private boolean checkAvailability(String url)
 	return true;
 }
 
+
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.activity_web_login, menu);
+    return true;
+	 
+}
+@SuppressLint("Wakelock")
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    // Handle item selection
+    switch (item.getItemId()) {
+        case R.id.channel66:
+        	Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
+        	startActivity(intent);
+            return true;
+        case R.id.Autocheck:
+        	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        	  wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+        	 wl.acquire();
+        	 myProgressDialog = new ProgressDialog(WebLogin.this);
+        	 myProgressDialog.setTitle("Waiting for broadcast...");
+             myProgressDialog.show();
+        	myChecker = new StreamAvailabilityChecker();
+        	myChecker.setAuto(true);
+        	 myChecker.setWeb(this);
+        	myChecker.execute("http://icecast.kab.tv/live1-heb-574bcfd5.mp3");
+		
+            // myProgressDialog.hide();
+        	 return true;
+        default:
+            return super.onOptionsItemSelected(item);
+    }
+  
+}
+
+@Override 
+public void onBackPressed()
+{
+	myChecker.cancel(true);
+	myProgressDialog.hide();
+}
+
+@Override
+public void onPause()
+{
+	myChecker.cancel(true);
+	myProgressDialog.hide();
+}
+
+
+@Override
+public void streamfound() {
+	// TODO Auto-generated method stub
+	runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+           //Your code to run in GUI thread here
+        	myProgressDialog.hide();
+       
+        	Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        	Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+        	r.play();
+        	
+        	mLoginwebView.loadUrl("javascript:Android.showToast('Broadcast started...')");
+        	wl.release();
+        }//public void run() {
+});
+	
+}
 }

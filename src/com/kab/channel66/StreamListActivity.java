@@ -159,6 +159,16 @@ public class StreamListActivity extends ListActivity {
 	    		String url1 = pages.get(i).urls.urlslist.get(0).url_value;
 	    		//playvideo
 	    		String mms_url = null;
+	    		//replace key
+	    		String key = PreferenceManager.getDefaultSharedPreferences(this).getString("key", null);
+	    		if(key!=null)
+	    		{
+	    		int j = url1.indexOf("special-")+ "special-".length();
+	    		String replace = url1.substring(j, j+8);
+	    		url1.replace(replace, key);
+	    		}
+	    		
+	    		
 				 if(url1.contains("asx")){
 					mms_url = ExtractMMSfromAsx(url1.trim());
    				 player.putExtra("path", mms_url);

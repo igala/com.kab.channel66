@@ -13,6 +13,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import org.apache.http.HttpEntity;
@@ -76,6 +78,7 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 	private StreamAvailabilityChecker myChecker = null;
 	PowerManager.WakeLock wl = null;
 	JSONObject serverJSON = null;
+	String content = null;
 	public class JavaScriptInterface {
 	    Context mContext;
 
@@ -104,22 +107,21 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 //	    Apphance.setReportOnShakeEnabled(true);
 //        System.setProperty("http.keepAlive", "false");
 //
-//	    UpdateActivity.iconDrawableId = R.drawable.icon;
-//	    checkForUpdates();
-	  //  StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-	  //    StrictMode.setThreadPolicy(policy);
+
         
         
         mLoginwebView = (WebView) findViewById(R.id.webloginview);
         myProgressDialog = new ProgressDialog(this);
         myProgressDialog.show();
-        
-        
+        //http://kabbalahgroup.info/internet/events/render_event_response?locale=he&source=stream_container&type=update_presets&timestamp=2011-11-25+13:29:53+UTC&stream_preset_id=3&flash=true&wmv=true
+        ContentParser cparser = new ContentParser();
+        cparser.execute("http://kabbalahgroup.info/internet/events/render_event_response?locale=he&source=stream_container&type=update_presets&timestamp=2011-11-25+13:29:53+UTC&stream_preset_id=3&flash=true&wmv=true");
          JSONParser parser = new JSONParser();
          parser.execute("http://mobile.kbb1.com/kab_channel/sviva_tova/jsonresponseexample.json");
         
          try {
         	 serverJSON = parser.get();
+        	  content = cparser.get();
         	 myProgressDialog.hide();
 		} catch (InterruptedException e2) {
 			// TODO Auto-generated catch block
@@ -128,6 +130,19 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
+         
+         
+        	boolean found;
+        	Pattern p;
+        	 Matcher m;
+        	 String name;
+         //parse key
+         if(content!=null)
+         {
+        	 int i = content.indexOf("special-")+"special-".length() ;
+        	 String key = content.substring(i, i+8);
+        	 setKey(key);
+         }
          
         JSONObject returned_Val = serverJSON;
         String time_stamp = null;
@@ -435,6 +450,13 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 		edit.putBoolean("valid", val);
 		edit.commit();
     }
+    private void setKey(String val)
+    {
+    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+		SharedPreferences.Editor edit = shared.edit();
+		edit.putString("key", val);
+		edit.commit();
+    }
     
 	private void setActivated(boolean val)
     {
@@ -522,10 +544,6 @@ public boolean onCreateOptionsMenu(Menu menu) {
 public boolean onOptionsItemSelected(MenuItem item) {
     // Handle item selection
     switch (item.getItemId()) {
-        case R.id.channel66:
-        	Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
-        	startActivity(intent);
-            return true;
         case R.id.Autocheck:
         	PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         	  wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
@@ -540,6 +558,10 @@ public boolean onOptionsItemSelected(MenuItem item) {
 		
             // myProgressDialog.hide();
         	 return true;
+        case R.id.channel66:
+        	Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
+        	startActivity(intent);
+            return true;
         default:
             return super.onOptionsItemSelected(item);
     }
@@ -549,15 +571,23 @@ public boolean onOptionsItemSelected(MenuItem item) {
 @Override 
 public void onBackPressed()
 {
+	super.onBackPressed();
+	if(myChecker!=null)
+	{
 	myChecker.cancel(true);
 	myProgressDialog.hide();
+	}
 }
 
 @Override
 public void onPause()
 {
+	super.onPause();
+	if(myChecker!=null)
+	{
 	myChecker.cancel(true);
 	myProgressDialog.hide();
+	}
 }
 
 

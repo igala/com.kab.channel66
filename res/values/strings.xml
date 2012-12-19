@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Channel 66</string>
-    <string name="version_name">0.5</string>
+    <string name="version_name">0.9</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_web_login">Channel 66</string>

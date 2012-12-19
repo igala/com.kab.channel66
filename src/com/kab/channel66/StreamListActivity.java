@@ -165,7 +165,7 @@ public class StreamListActivity extends ListActivity {
 	    		{
 	    		int j = url1.indexOf("special-")+ "special-".length();
 	    		String replace = url1.substring(j, j+8);
-	    		url1.replace(replace, key);
+	    		url1 = url1.replace(replace, key);
 	    		}
 	    		
 	    		

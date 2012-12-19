@@ -46,12 +46,14 @@ import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 //import android.util.Log;
@@ -111,115 +113,7 @@ public class WebLogin extends Activity implements WebCallbackInterface {
         
         
         mLoginwebView = (WebView) findViewById(R.id.webloginview);
-        myProgressDialog = new ProgressDialog(this);
-        myProgressDialog.show();
-        //http://kabbalahgroup.info/internet/events/render_event_response?locale=he&source=stream_container&type=update_presets&timestamp=2011-11-25+13:29:53+UTC&stream_preset_id=3&flash=true&wmv=true
-        ContentParser cparser = new ContentParser();
-        cparser.execute("http://kabbalahgroup.info/internet/events/render_event_response?locale=he&source=stream_container&type=update_presets&timestamp=2011-11-25+13:29:53+UTC&stream_preset_id=3&flash=true&wmv=true");
-         JSONParser parser = new JSONParser();
-         parser.execute("http://mobile.kbb1.com/kab_channel/sviva_tova/jsonresponseexample.json");
-        
-         try {
-        	 serverJSON = parser.get();
-        	  content = cparser.get();
-        	 myProgressDialog.hide();
-		} catch (InterruptedException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (ExecutionException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-         
-         
-        	boolean found;
-        	Pattern p;
-        	 Matcher m;
-        	 String name;
-         //parse key
-         if(content!=null)
-         {
-        	 int i = content.indexOf("special-")+"special-".length() ;
-        	 String key = content.substring(i, i+8);
-        	 setKey(key);
-         }
-         
-        JSONObject returned_Val = serverJSON;
-        String time_stamp = null;
-        //test events
-        try {
-        	if(returned_Val==null)
-        	{
-        		Toast.makeText(this, "Could not retrieve data from server",5);
-        		return;
-        	}
-			time_stamp = returned_Val.getString("time_stamp");
-			
-		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        events = new Events(returned_Val, getApplicationContext());
-        events.parse();
-        
-        ///
-          try {
-        	
-        	
-			io.vov.vitamio.VitamioInstaller.checkVitamioInstallation(this);
-		} catch (VitamioNotCompatibleException e) {
-			// TODO Auto-generated catch block
-			AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
-			chooseToInstall.setTitle("Install missing plug-in");
-			
-			chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
-			   public void onClick(DialogInterface dialog, int which) {
-			      // here you can add functions
-				   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
-				    .setData(Uri.parse("market://details?id="+io.vov.vitamio.VitamioInstaller.getCompatiblePackage()));
-				startActivity(goToMarket); 
- 				   
- 				 
-    	    		
-			   }
-			});
-			chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
- 			   public void onClick(DialogInterface dialog, int which) {
- 			      // here you can add functions
- 				  finish();
- 			   }
- 			});
-			chooseToInstall.setIcon(R.drawable.icon);
-			chooseToInstall.show();
-			
-		} catch (VitamioNotFoundException e) {
-			// TODO Auto-generated catch block
-			AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
-			chooseToInstall.setTitle("Missing plug-in");
-			chooseToInstall.setMessage("Install plug-in from Google play?");
-			chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
-			   public void onClick(DialogInterface dialog, int which) {
-			      // here you can add functions
-				   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
-				    .setData(Uri.parse("market://details?id="+io.vov.vitamio.VitamioInstaller.getCompatiblePackage()));
-				startActivity(goToMarket); 
- 				   
- 				 
-    	    		
-			   }
-			});
-			chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
- 			   public void onClick(DialogInterface dialog, int which) {
- 			      // here you can add functions
- 				  finish();
- 			   }
- 			});
-			chooseToInstall.setIcon(R.drawable.icon);
-			chooseToInstall.show();
-			e.printStackTrace();
-		}
-		
-        
+       
         mClient = new WebViewClient()
         	{
         	    @Override
@@ -568,6 +462,152 @@ public boolean onOptionsItemSelected(MenuItem item) {
   
 }
 
+@Override
+public void onResume()
+{
+	super.onResume();
+	
+	 myProgressDialog = new ProgressDialog(this);
+     myProgressDialog.show();
+     //http://kabbalahgroup.info/internet/events/render_event_response?locale=he&source=stream_container&type=update_presets&timestamp=2011-11-25+13:29:53+UTC&stream_preset_id=3&flash=true&wmv=true
+     ContentParser cparser = new ContentParser();
+     cparser.execute("http://kabbalahgroup.info/internet/events/render_event_response?locale=he&source=stream_container&type=update_presets&timestamp=2011-11-25+13:29:53+UTC&stream_preset_id=3&flash=true&wmv=true");
+      JSONParser parser = new JSONParser();
+      parser.execute("http://mobile.kbb1.com/kab_channel/sviva_tova/jsonresponseexample.json");
+     
+      try {
+     	 serverJSON = parser.get();
+     	  content = cparser.get();
+     	 myProgressDialog.hide();
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ExecutionException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+      
+      
+     	
+      //parse key
+      if(content!=null)
+      {
+     	 int i = content.indexOf("special-")+"special-".length() ;
+     	 String key = content.substring(i, i+8);
+     	 setKey(key);
+      }
+      
+     JSONObject returned_Val = serverJSON;
+     String time_stamp = null;
+     String isUpdate = null;
+     String version = null;
+     //test events
+     try {
+     	if(returned_Val==null)
+     	{
+     		Toast.makeText(this, "Could not retrieve data from server",5);
+     		return;
+     	}
+			time_stamp = returned_Val.getString("time_stamp");
+			isUpdate = returned_Val.getString("updateandlock");
+			version = returned_Val.getString("version");
+			
+			if(isUpdate.equalsIgnoreCase("true"))
+			{
+				String versionName = getResources().getString(R.string.version_name);
+				if(Float.parseFloat(version)>Float.parseFloat(versionName))
+				{
+					AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
+					chooseToInstall.setTitle("New version available, do you want to update?");
+					
+					chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
+					   public void onClick(DialogInterface dialog, int which) {
+					      // here you can add functions
+						   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+						    .setData(Uri.parse("market://details?id=com.kab.channel66"));
+						startActivity(goToMarket); 
+		 				   
+		 				 
+		    	    		
+					   }
+					});
+					chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
+		 			   public void onClick(DialogInterface dialog, int which) {
+		 			      // here you can add functions
+		 				  finish();
+		 			   }
+		 			});
+					chooseToInstall.show();
+				}
+					
+			}
+			
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+     events = new Events(returned_Val, getApplicationContext());
+     events.parse();
+     
+     ///
+       try {
+     	
+     	
+			io.vov.vitamio.VitamioInstaller.checkVitamioInstallation(this);
+		} catch (VitamioNotCompatibleException e) {
+			// TODO Auto-generated catch block
+			AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
+			chooseToInstall.setTitle("Install missing plug-in");
+			
+			chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int which) {
+			      // here you can add functions
+				   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+				    .setData(Uri.parse("market://details?id="+io.vov.vitamio.VitamioInstaller.getCompatiblePackage()));
+				startActivity(goToMarket); 
+				   
+				 
+ 	    		
+			   }
+			});
+			chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int which) {
+			      // here you can add functions
+				  finish();
+			   }
+			});
+			chooseToInstall.setIcon(R.drawable.icon);
+			chooseToInstall.show();
+			
+		} catch (VitamioNotFoundException e) {
+			// TODO Auto-generated catch block
+			AlertDialog chooseToInstall = new AlertDialog.Builder(WebLogin.this).create();
+			chooseToInstall.setTitle("Missing plug-in");
+			chooseToInstall.setMessage("Install plug-in from Google play?");
+			chooseToInstall.setButton("Ok", new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int which) {
+			      // here you can add functions
+				   Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+				    .setData(Uri.parse("market://details?id="+io.vov.vitamio.VitamioInstaller.getCompatiblePackage()));
+				startActivity(goToMarket); 
+				   
+				 
+ 	    		
+			   }
+			});
+			chooseToInstall.setButton2("Cancel", new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int which) {
+			      // here you can add functions
+				  finish();
+			   }
+			});
+			chooseToInstall.setIcon(R.drawable.icon);
+			chooseToInstall.show();
+			e.printStackTrace();
+		}
+		
+     
+}
 @Override 
 public void onBackPressed()
 {

@@ -51,6 +51,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -202,7 +203,7 @@ public class WebLogin extends Activity implements WebCallbackInterface {
         	    		//	if(!checkAvailability(url))
         	    		//		return;
         	    			StreamAvailabilityChecker checker = new StreamAvailabilityChecker();
-        	    			
+        	    			//checker.execute("http://icecast.kab.tv/live1-heb-574bcfd5.mp31");
         	    			checker.execute(url);
         	    			try {
 								if(!checker.get())
@@ -444,7 +445,21 @@ public boolean onOptionsItemSelected(MenuItem item) {
         	 wl.acquire();
         	 myProgressDialog = new ProgressDialog(WebLogin.this);
         	 myProgressDialog.setTitle("Waiting for broadcast...");
-             myProgressDialog.show();
+//             myProgressDialog.show(WebLogin.this,"Waiting for broadcast...",null,true,true,new OnCancelListener() {
+// 	            public void onCancel(DialogInterface pd) {
+// 	            	autocheckdone();
+//	            }
+//	        });
+//             
+        	 myProgressDialog = ProgressDialog
+        		        .show(this, "Waiting for broadcast...",
+        		        null, true, true,
+        		        new OnCancelListener() {
+        		            public void onCancel(DialogInterface pd) {
+        		                autocheckdone();
+        		            }
+        		        });      
+             
         	myChecker = new StreamAvailabilityChecker();
         	myChecker.setAuto(true);
         	 myChecker.setWeb(this);
@@ -612,22 +627,25 @@ public void onResume()
 public void onBackPressed()
 {
 	super.onBackPressed();
+	autocheckdone();
+}
+
+private void autocheckdone()
+{
 	if(myChecker!=null)
 	{
 	myChecker.cancel(true);
 	myProgressDialog.hide();
+	myChecker.setAuto(false);
+	if(wl.isHeld())
+	wl.release();
 	}
 }
-
 @Override
 public void onPause()
 {
 	super.onPause();
-	if(myChecker!=null)
-	{
-	myChecker.cancel(true);
-	myProgressDialog.hide();
-	}
+	autocheckdone();
 }
 
 

@@ -100,6 +100,9 @@ public class StreamAvailabilityChecker extends
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		 if (isCancelled()) 
+			 return false;
 		}
 		web.streamfound();
 		return true;

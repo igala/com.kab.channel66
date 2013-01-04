@@ -22,11 +22,15 @@ import com.kab.channel66.Events.Pages;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +43,20 @@ import android.widget.Toast;
 
 public class StreamListActivity extends ListActivity {
 
+	private ServiceConnection connection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder iservice) {
+           // mService = ILocService.Stub.asInterface(iservice);
+           // mBound = true;
+        }
+		@Override
+        public void onServiceDisconnected(ComponentName className) {
+          //  mService = null;
+           // mBound = false;
+        }
+
+	
+    };
 	private ArrayList<Page> pages;
 	public void onCreate(Bundle icicle) {
 	    super.onCreate(icicle);
@@ -116,8 +134,10 @@ public class StreamListActivity extends ListActivity {
 	    else
 	    {
 	    	 
-	    	description.add("Channel 66 Video");
-	    	description.add("Channel 66 Audio");
+	    	description.add("Channel 66 Video Heb");
+	    	description.add("Channel 66 Audio Heb");
+//	    	description.add("Channel 66 Video Rus");
+//	    	description.add("Channel 66 Audio Rus");
 	    }
 	    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 	        android.R.layout.simple_list_item_1, description);
@@ -184,7 +204,7 @@ public class StreamListActivity extends ListActivity {
     	    		startActivity(player);
 				 
 	    	}
-	    } else if(item.equals("Channel 66 Video"))
+	    } else if(item.equals("Channel 66 Video Heb"))
 	    	{
 	    		
   				 
@@ -192,10 +212,29 @@ public class StreamListActivity extends ListActivity {
 	    		startActivity(player);
 				 
 	    	}
-	    else if(item.equals("Channel 66 Audio"))
+	    else if(item.equals("Channel 66 Audio Heb"))
     	{
+//	    	Intent svc=new Intent(this, BackgroundPlayer.class);
+//            startService(svc);
+//            
+//            bindService(svc, connection, Context.BIND_AUTO_CREATE);
 	    	Uri uri = Uri.parse("http://icecast.kab.tv/heb.mp3");
 	    	Intent player1 = new Intent(Intent.ACTION_VIEW,uri);
+	    	 player1.setDataAndType(uri, "audio/*");
+			startActivity(player1);	  
+			//http://stackoverflow.com/questions/14043618/background-music-in-my-app-doesnt-start
+			
+    	}
+	    else if(item.equals("Channel 66 Video Rus"))
+    	{
+	    	player.putExtra("path",  ExtractMMSfromAsx("http://streams.kab.tv/rus.asx"));
+    		startActivity(player);  
+    	}
+	    else if(item.equals("Channel 66 Audio Rus"))
+    	{
+	    	Uri uri = Uri.parse("http://icecast.kab.tv/rus.mp3");
+	    	Intent player1 = new Intent(Intent.ACTION_VIEW,uri);
+	    	 player1.setDataAndType(uri, "audio/*");
 			startActivity(player1);	  
     	}
 	    		

@@ -266,9 +266,9 @@ public class WebLogin extends Activity implements WebCallbackInterface {
          	    				   Uri uri = Uri.parse(url);
          	    				  Intent player = new Intent(Intent.ACTION_VIEW,uri);
          	    				 
-          	    				 // player.setDataAndType(uri, "mp3");
+          	    				  player.setDataAndType(uri, "audio/*");
         	    				   //player.putExtra("path", url.toString());
-        	    				   //player.putExtra("type", "audio");
+        	    				  // player.putExtra("type", "audio/*");
         	        	    		startActivity(player);
         	        	    		
         	    			   }

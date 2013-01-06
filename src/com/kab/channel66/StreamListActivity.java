@@ -21,6 +21,7 @@ import com.kab.channel66.Events.Page;
 import com.kab.channel66.Events.Pages;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -36,8 +38,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -57,6 +61,8 @@ public class StreamListActivity extends ListActivity {
 
 	
     };
+    Dialog playDialog;
+    Intent svc;
 	private ArrayList<Page> pages;
 	public void onCreate(Bundle icicle) {
 	    super.onCreate(icicle);
@@ -214,14 +220,50 @@ public class StreamListActivity extends ListActivity {
 	    	}
 	    else if(item.equals("Channel 66 Audio Heb"))
     	{
-//	    	Intent svc=new Intent(this, BackgroundPlayer.class);
-//            startService(svc);
+	    	 svc=new Intent(this, BackgroundPlayer.class);
+	    	 svc.putExtra("audioUrl", "http://icecast.kab.tv/heb.mp3");
+            startService(svc);
+            playDialog = new Dialog(this);
+            playDialog.setTitle("Playing audio");
+            playDialog.setContentView(R.layout.mediacontroller);
+            final ImageButton but = (ImageButton) playDialog.findViewById(R.id.mediacontroller_play_pause);
+            but.setImageResource(R.drawable.mediacontroller_pause01);
+            but.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					if(svc!=null)
+					{
+					but.setImageResource(R.drawable.mediacontroller_play01);
+					stopService(svc);
+					svc= null;
+					}
+					else
+					{
+						but.setImageResource(R.drawable.mediacontroller_pause01);
+						svc=new Intent(StreamListActivity.this, BackgroundPlayer.class);
+						startService(svc);
+					}
+				}
+			});
+            playDialog.setOnCancelListener(new DialogInterface.OnCancelListener()
+            {
+                @Override
+				public
+                void onCancel(DialogInterface dialog)
+                {
+                     dialogBackpressed();
+                }
+            });
+            playDialog.show();      
+            
 //            
 //            bindService(svc, connection, Context.BIND_AUTO_CREATE);
-	    	Uri uri = Uri.parse("http://icecast.kab.tv/heb.mp3");
-	    	Intent player1 = new Intent(Intent.ACTION_VIEW,uri);
-	    	 player1.setDataAndType(uri, "audio/*");
-			startActivity(player1);	  
+//	    	Uri uri = Uri.parse("http://icecast.kab.tv/heb.mp3");
+//	    	Intent player1 = new Intent(Intent.ACTION_VIEW,uri);
+//	    	 player1.setDataAndType(uri, "audio/*");
+//			startActivity(player1);	  
 			//http://stackoverflow.com/questions/14043618/background-music-in-my-app-doesnt-start
 			
     	}
@@ -288,6 +330,15 @@ public class StreamListActivity extends ListActivity {
 	   EasyTracker.getInstance().activityStart(this);
 	  
 	 }
+	 @Override
+	 public void onDestroy() {
+	   super.onDestroy();
+	    // The rest of your onStart() code.
+	   if(svc!=null)
+		   stopService(svc);
+	   
+
+	 }
 
 
 	 @Override
@@ -295,6 +346,7 @@ public class StreamListActivity extends ListActivity {
 	   super.onStop();
 	    // The rest of your onStop() code.
 	   EasyTracker.getInstance().activityStop(this); // Add this method.
+	   
 	 }
 	 
 	 @Override
@@ -309,6 +361,23 @@ public class StreamListActivity extends ListActivity {
 		 }
 		 else
 			 return false;
+	 }
+	 
+	 public void dialogBackpressed()
+	 {
+		 playDialog.hide();
+		 if(svc!=null)
+			   stopService(svc);
+	 }
+	 @Override
+	 public void onBackPressed()
+	 {
+		 super.onBackPressed();
+		 
+		 if(svc!=null)
+			   stopService(svc);	
+		 
+		 	 
 	 }
 	 @Override
 	 public boolean onOptionsItemSelected(MenuItem item) {

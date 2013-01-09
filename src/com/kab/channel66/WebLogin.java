@@ -532,6 +532,8 @@ public boolean onOptionsItemSelected(MenuItem item) {
 public void onResume()
 {
 	super.onResume();
+	EasyTracker.getInstance().setContext(this);
+	
 	
 	 myProgressDialog = new ProgressDialog(this);
      myProgressDialog.show();

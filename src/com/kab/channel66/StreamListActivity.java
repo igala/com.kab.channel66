@@ -139,11 +139,14 @@ public class StreamListActivity extends ListActivity {
 	    }
 	    else
 	    {
-	    	 
-	    	description.add("Channel 66 Video Heb");
-	    	description.add("Channel 66 Audio Heb");
-//	    	description.add("Channel 66 Video Rus");
-//	    	description.add("Channel 66 Audio Rus");
+	    	
+	    	
+	    	description.add("ערוץ 66 - וידאו");
+	    	description.add("ערוץ 66 - אודיו");
+	    	
+	    	
+	    	description.add("Канал 66 на Русском - Видео");
+	    	description.add("Канал 66 на Русском - Аудио");
 	    }
 	    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 	        android.R.layout.simple_list_item_1, description);
@@ -210,7 +213,7 @@ public class StreamListActivity extends ListActivity {
     	    		startActivity(player);
 				 
 	    	}
-	    } else if(item.equals("Channel 66 Video Heb"))
+	    } else if(item.equals("ערוץ 66 - וידאו"))
 	    	{
 	    		
   				 
@@ -218,7 +221,7 @@ public class StreamListActivity extends ListActivity {
 	    		startActivity(player);
 				 
 	    	}
-	    else if(item.equals("Channel 66 Audio Heb"))
+	    else if(item.equals("ערוץ 66 - אודיו"))
     	{
 	    	 svc=new Intent(this, BackgroundPlayer.class);
 	    	 svc.putExtra("audioUrl", "http://icecast.kab.tv/heb.mp3");
@@ -243,6 +246,7 @@ public class StreamListActivity extends ListActivity {
 					{
 						but.setImageResource(R.drawable.mediacontroller_pause01);
 						svc=new Intent(StreamListActivity.this, BackgroundPlayer.class);
+						svc.putExtra("audioUrl", "http://icecast.kab.tv/heb.mp3");
 						startService(svc);
 					}
 				}
@@ -267,17 +271,56 @@ public class StreamListActivity extends ListActivity {
 			//http://stackoverflow.com/questions/14043618/background-music-in-my-app-doesnt-start
 			
     	}
-	    else if(item.equals("Channel 66 Video Rus"))
+	    else if(item.equals("Канал 66 на Русском - Видео"))
     	{
 	    	player.putExtra("path",  ExtractMMSfromAsx("http://streams.kab.tv/rus.asx"));
     		startActivity(player);  
     	}
-	    else if(item.equals("Channel 66 Audio Rus"))
+	    else if(item.equals("Канал 66 на Русском - Аудио"))
     	{
-	    	Uri uri = Uri.parse("http://icecast.kab.tv/rus.mp3");
-	    	Intent player1 = new Intent(Intent.ACTION_VIEW,uri);
-	    	 player1.setDataAndType(uri, "audio/*");
-			startActivity(player1);	  
+//	    	Uri uri = Uri.parse("http://icecast.kab.tv/rus.mp3");
+//	    	Intent player1 = new Intent(Intent.ACTION_VIEW,uri);
+//	    	 player1.setDataAndType(uri, "audio/*");
+//			startActivity(player1);	 
+	    	 svc=new Intent(this, BackgroundPlayer.class);
+	    	 svc.putExtra("audioUrl", "http://icecast.kab.tv/rus.mp3");
+            startService(svc);
+            playDialog = new Dialog(this);
+            playDialog.setTitle("Playing audio");
+            playDialog.setContentView(R.layout.mediacontroller);
+            final ImageButton but = (ImageButton) playDialog.findViewById(R.id.mediacontroller_play_pause);
+            but.setImageResource(R.drawable.mediacontroller_pause01);
+            but.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					if(svc!=null)
+					{
+					but.setImageResource(R.drawable.mediacontroller_play01);
+					stopService(svc);
+					svc= null;
+					}
+					else
+					{
+						but.setImageResource(R.drawable.mediacontroller_pause01);
+						svc=new Intent(StreamListActivity.this, BackgroundPlayer.class);
+						svc.putExtra("audioUrl", "http://icecast.kab.tv/rus.mp3");
+						startService(svc);
+					}
+				}
+			});
+            playDialog.setOnCancelListener(new DialogInterface.OnCancelListener()
+            {
+                @Override
+				public
+                void onCancel(DialogInterface dialog)
+                {
+                     dialogBackpressed();
+                }
+            });
+            playDialog.show();      
+            
     	}
 	    		
 	    

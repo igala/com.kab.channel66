@@ -170,6 +170,49 @@ public class StreamListActivity extends ListActivity {
 		}
 		return ret;
 	}
+	private void playStreamInList(int index)
+	{
+		String item = (String) getListAdapter().getItem(index);
+		Intent player = new Intent(StreamListActivity.this, VideoPlayerActivity.class);
+	    
+		
+		if(pages!=null)
+	    {
+	    for(int i=0;i<pages.size();i++)
+	    	if(pages.get(i).description.equalsIgnoreCase(item))
+	    	{
+	    		
+	    		
+	    		String url1 = pages.get(i).urls.urlslist.get(0).url_value;
+	    		//playvideo
+	    		String mms_url = null;
+	    		//replace key
+	    		String key = PreferenceManager.getDefaultSharedPreferences(this).getString("key", null);
+	    		if(key!=null)
+	    		{
+	    		int j = url1.indexOf("special-")+ "special-".length();
+	    		String replace = url1.substring(j, j+8);
+	    		url1 = url1.replace(replace, key);
+	    		}
+	    		
+	    		
+				 if(url1.contains("asx")){
+					mms_url = ExtractMMSfromAsx(url1.trim());
+   				 player.putExtra("path", mms_url);
+				 }
+				 else
+				 {
+					player.putExtra("path", url1);
+				 }
+				
+				
+				 EasyTracker.getTracker().trackEvent("Stream list", "on item clicked",url1,0L);
+ 				
+    	    		startActivity(player);
+				 
+	    	}
+	    }
+	}
 	
 	 @Override
 	  protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -371,7 +414,7 @@ public class StreamListActivity extends ListActivity {
 	    // The rest of your onStart() code.
 	   EasyTracker.getInstance().setContext(this.getApplicationContext());
 	   EasyTracker.getInstance().activityStart(this);
-	  
+	   playStreamInList(0);
 	 }
 	 @Override
 	 public void onDestroy() {
@@ -389,7 +432,7 @@ public class StreamListActivity extends ListActivity {
 	   super.onStop();
 	    // The rest of your onStop() code.
 	   EasyTracker.getInstance().activityStop(this); // Add this method.
-	   
+	   finish();
 	 }
 	 
 	 @Override
@@ -403,7 +446,11 @@ public class StreamListActivity extends ListActivity {
 	     return true;
 		 }
 		 else
-			 return false;
+		 {
+			 MenuInflater inflater = getMenuInflater();
+		     inflater.inflate(R.menu.streamoptionmenu_activated, menu);
+		     return true;
+		 }
 	 }
 	 
 	 public void dialogBackpressed()
@@ -459,6 +506,11 @@ public class StreamListActivity extends ListActivity {
 	           
 	            
 	             return true;
+	         case R.id.sviva:
+	        	 
+	        	 onBackPressed();
+	        	 return true;
+	        	 
 	         default:
 	             return super.onOptionsItemSelected(item);
 	     }

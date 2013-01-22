@@ -35,7 +35,10 @@ public class ASXExtractor extends AsyncTask<String, Void, String> {
 				{
 				String mms_url = (line.substring(line.indexOf("mms"),line.indexOf(" /")-1));
 				if(mms_url.length()>0)
+				{
+					//mms_url = mms_url.replace("mms", "rtsp");
 					return mms_url;
+				}
 				}
 			}
 		

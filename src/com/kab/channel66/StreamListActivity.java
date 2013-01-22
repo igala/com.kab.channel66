@@ -181,9 +181,19 @@ public class StreamListActivity extends ListActivity {
 	    for(int i=0;i<pages.size();i++)
 	    	if(pages.get(i).description.equalsIgnoreCase(item))
 	    	{
+	    		String url1;
 	    		
+	    		//set the quality
+	    		Boolean high = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("quality", false);
+	    		if(!high)
+	    		{
+	    			 url1 = pages.get(i).urls.urlslist.get(1).url_value;
+	    		}
+	    		else
+	    		{
+	    			 url1 = pages.get(i).urls.urlslist.get(0).url_value;
+	    		}
 	    		
-	    		String url1 = pages.get(i).urls.urlslist.get(0).url_value;
 	    		//playvideo
 	    		String mms_url = null;
 	    		//replace key
@@ -194,6 +204,10 @@ public class StreamListActivity extends ListActivity {
 	    		String replace = url1.substring(j, j+8);
 	    		url1 = url1.replace(replace, key);
 	    		}
+	    		
+	    		
+	    		
+	    			
 	    		
 	    		
 				 if(url1.contains("asx")){
@@ -258,9 +272,9 @@ public class StreamListActivity extends ListActivity {
 	    	}
 	    } else if(item.equals("ערוץ 66 - וידאו"))
 	    	{
-	    		
-  				 
-	    		player.putExtra("path",  ExtractMMSfromAsx("http://streams.kab.tv/heb.asx"));
+	    		//"mms://wms1.il.kab.tv/heb"
+  				// String url = ExtractMMSfromAsx("http://streams.kab.tv/heb.asx");
+	    		player.putExtra("path", ExtractMMSfromAsx("http://streams.kab.tv/heb.asx"));//"rtsp://wms1.il.kab.tv/heb");// ExtractMMSfromAsx("http://streams.kab.tv/heb.asx"));
 	    		startActivity(player);
 				 
 	    	}

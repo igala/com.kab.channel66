@@ -476,12 +476,30 @@ private boolean checkAvailability(String url)
 	}
 	return true;
 }
-
-
+public boolean onPrepareOptionsMenu (Menu menu)
+{
+	MenuItem Item = menu.findItem(R.id.quality);
+	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+	
+	if(shared.getBoolean("quality", true))
+		Item.setTitle(getResources().getString(R.string.quality)+": High");
+	else
+		Item.setTitle(getResources().getString(R.string.quality)+": Medium");	
+	return true;
+}
+private void updateMenuTitles() {
+//    MenuItem bedMenuItem = menu.findItem(R.id.quality);
+//    if (inBed) {
+//        bedMenuItem.setTitle(outOfBedMenuTitle);
+//    } else {
+//        bedMenuItem.setTitle(inBedMenuTitle);
+//    }
+}
 @Override
 public boolean onCreateOptionsMenu(Menu menu) {
     MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.activity_web_login, menu);
+    updateMenuTitles();
     return true;
 	 
 }
@@ -522,6 +540,20 @@ public boolean onOptionsItemSelected(MenuItem item) {
         	Intent intent = new Intent(WebLogin.this,StreamListActivity.class);
         	startActivity(intent);
             return true;
+        case R.id.quality:
+        	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+        	SharedPreferences.Editor edit = shared.edit();
+        	if(shared.getBoolean("quality", true))
+        	{
+        		edit.putBoolean("quality", false);
+    			edit.commit();
+        	}
+        	else
+        	{
+        		edit.putBoolean("quality", true);
+    			edit.commit();
+        	}
+            return true;
         default:
             return super.onOptionsItemSelected(item);
     }
@@ -561,6 +593,11 @@ public void onResume()
       if(content!=null)
       {
      	 int i = content.indexOf("special-")+"special-".length() ;
+     	 if(i==-1)
+     	 {
+     		Toast.makeText(this, "No valid broadcast, please try again later",5);
+     		return;
+     	 }
      	 String key = content.substring(i, i+8);
      	 setKey(key);
       }

@@ -36,6 +36,7 @@ public class BackgroundPlayer extends Service {
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		try {
 			mediaPlayer.setDataSource(url);
+			mediaPlayer.prepare();
 			
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
@@ -51,7 +52,7 @@ public class BackgroundPlayer extends Service {
 			e.printStackTrace();
 		}
 		
-		
+		mediaPlayer.start();
 		return startId;
 		
 	}
@@ -104,15 +105,12 @@ public class BackgroundPlayer extends Service {
 
 	    super.onStart(intent, startId);
 	    try {
-			mediaPlayer.prepare();
+			
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // might take long! (for buffering, etc)
-	    mediaPlayer.start();
+		}
+	    
 	    
 	}
 	

@@ -20,6 +20,7 @@ import com.google.myjson.Gson;
 import com.kab.channel66.Events.Page;
 import com.kab.channel66.Events.Pages;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -274,8 +275,18 @@ public class StreamListActivity extends ListActivity {
 	    	{
 	    		//"mms://wms1.il.kab.tv/heb"
   				// String url = ExtractMMSfromAsx("http://streams.kab.tv/heb.asx");
+	    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(StreamListActivity.this);
+         	
+         	if(shared.getBoolean("quality", false))
+         	{
 	    		player.putExtra("path", ExtractMMSfromAsx("http://streams.kab.tv/heb.asx"));//"rtsp://wms1.il.kab.tv/heb");// ExtractMMSfromAsx("http://streams.kab.tv/heb.asx"));
 	    		startActivity(player);
+         	}
+         	else
+         	{
+         		player.putExtra("path", ExtractMMSfromAsx("http://streams.kab.tv/heb_medium.asx"));//"rtsp://wms1.il.kab.tv/heb");// ExtractMMSfromAsx("http://streams.kab.tv/heb.asx"));
+	    		startActivity(player);
+         	}
 				 
 	    	}
 	    else if(item.equals("ערוץ 66 - אודיו"))
@@ -330,8 +341,18 @@ public class StreamListActivity extends ListActivity {
     	}
 	    else if(item.equals("Канал 66 на Русском - Видео"))
     	{
+	    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(StreamListActivity.this);
+         	
+         	if(shared.getBoolean("quality", false))
+         	{
 	    	player.putExtra("path",  ExtractMMSfromAsx("http://streams.kab.tv/rus.asx"));
-    		startActivity(player);  
+    		startActivity(player);
+         	}
+         	else
+         	{
+         		player.putExtra("path",  ExtractMMSfromAsx("http://streams.kab.tv/rus_medium.asx"));
+        		startActivity(player);
+         	}
     	}
 	    else if(item.equals("Канал 66 на Русском - Аудио"))
     	{
@@ -483,7 +504,8 @@ public class StreamListActivity extends ListActivity {
 		 
 		 	 
 	 }
-	 @Override
+	 @SuppressLint("ShowToast")
+	@Override
 	 public boolean onOptionsItemSelected(MenuItem item) {
 	     // Handle item selection
 	     switch (item.getItemId()) {
@@ -524,9 +546,38 @@ public class StreamListActivity extends ListActivity {
 	        	 
 	        	 onBackPressed();
 	        	 return true;
+	         case R.id.quality:
+	         	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(StreamListActivity.this);
+	         	SharedPreferences.Editor edit = shared.edit();
+	         	if(shared.getBoolean("quality", true))
+	         	{
+	         		Toast.makeText(StreamListActivity.this, "Changed quality to medium", Toast.LENGTH_LONG).show();
+	         		edit.putBoolean("quality", false);
+	     			edit.commit();
+	         	}
+	         	else
+	         	{
+	         		Toast.makeText(StreamListActivity.this, "Changed quality to high", Toast.LENGTH_LONG).show();
+	         		edit.putBoolean("quality", true);
+	     			edit.commit();
+	         	}
+	         	
+	             return true;
 	        	 
 	         default:
 	             return super.onOptionsItemSelected(item);
 	     }
+	 }
+	 
+	 public boolean onPrepareOptionsMenu (Menu menu)
+	 {
+	 	MenuItem Item = menu.findItem(R.id.quality);
+	 	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(StreamListActivity.this);
+	 	
+	 	if(shared.getBoolean("quality", false))
+	 		Item.setTitle(getResources().getString(R.string.quality)+": High");
+	 	else
+	 		Item.setTitle(getResources().getString(R.string.quality)+": Medium");	
+	 	return true;
 	 }
 }

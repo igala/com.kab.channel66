@@ -31,6 +31,8 @@ import com.apphance.android.Apphance;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.myjson.Gson;
 import com.kab.channel66.R;
+import com.parse.Parse;
+import com.parse.PushService;
 
 import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
 import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
@@ -115,8 +117,9 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 //	    Apphance.setReportOnShakeEnabled(true);
 //        System.setProperty("http.keepAlive", "false");
 //
-
         
+        PushService.subscribe(this, "", WebLogin.class);
+        PushService.setDefaultPushCallback(this, WebLogin.class);
         
         mLoginwebView = (WebView) findViewById(R.id.webloginview);
        
@@ -481,7 +484,7 @@ public boolean onPrepareOptionsMenu (Menu menu)
 	MenuItem Item = menu.findItem(R.id.quality);
 	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
 	
-	if(shared.getBoolean("quality", true))
+	if(shared.getBoolean("quality", false))
 		Item.setTitle(getResources().getString(R.string.quality)+": High");
 	else
 		Item.setTitle(getResources().getString(R.string.quality)+": Medium");	
@@ -544,15 +547,17 @@ public boolean onOptionsItemSelected(MenuItem item) {
         	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
         	SharedPreferences.Editor edit = shared.edit();
         	if(shared.getBoolean("quality", true))
-        	{
-        		edit.putBoolean("quality", false);
-    			edit.commit();
-        	}
-        	else
-        	{
-        		edit.putBoolean("quality", true);
-    			edit.commit();
-        	}
+         	{
+         		Toast.makeText(WebLogin.this, "Changed quality to medium", Toast.LENGTH_LONG).show();
+         		edit.putBoolean("quality", false);
+     			edit.commit();
+         	}
+         	else
+         	{
+         		Toast.makeText(WebLogin.this, "Changed quality to high", Toast.LENGTH_LONG).show();
+         		edit.putBoolean("quality", true);
+     			edit.commit();
+         	}
             return true;
         default:
             return super.onOptionsItemSelected(item);

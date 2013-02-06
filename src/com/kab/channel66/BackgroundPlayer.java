@@ -18,6 +18,7 @@ import android.view.ViewDebug.FlagToString;
 public class BackgroundPlayer extends Service {
 
 	MediaPlayer mediaPlayer;
+	Thread thread;
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
@@ -30,30 +31,46 @@ public class BackgroundPlayer extends Service {
 		//startActivity(player1);	
 		
 		
+
+		
 		//String url = "http://icecast.kab.tv/heb.mp3"; // your URL here
-		String url = intent.getStringExtra("audioUrl");
+		final String url = intent.getStringExtra("audioUrl");
 		 mediaPlayer = new MediaPlayer();
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-		try {
-			mediaPlayer.setDataSource(url);
-			mediaPlayer.prepare();
-			
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		mediaPlayer.start();
+		
+		
+		Thread thread = new Thread()
+		{
+		    @Override
+		    public void run() {
+		    	try {
+					mediaPlayer.setDataSource(url);
+					mediaPlayer.prepare();
+					
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				mediaPlayer.start();
+		    }
+		};
+		
+		thread.start();
 		return startId;
+		
+		
+		
 		
 	}
 	/*

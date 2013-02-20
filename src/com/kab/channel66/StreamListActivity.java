@@ -467,7 +467,10 @@ public class StreamListActivity extends ListActivity {
 	   super.onStop();
 	    // The rest of your onStop() code.
 	   EasyTracker.getInstance().activityStop(this); // Add this method.
-	   finish();
+	   SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		 Boolean activated = userInfoPreferences.getBoolean("activated", false);
+		 if(activated)
+			 finish();
 	 }
 	 
 	 @Override

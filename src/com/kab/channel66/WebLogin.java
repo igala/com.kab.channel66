@@ -37,6 +37,7 @@ import com.parse.PushService;
 import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
 import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
 import io.vov.vitamio.widget.VideoView;
+import android.R.string;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -76,7 +77,7 @@ import android.widget.Toast;
 
 
 
-public class WebLogin extends Activity implements WebCallbackInterface {
+public class WebLogin extends BaseActivity implements WebCallbackInterface {
 
 	private WebView mLoginwebView;
 	private WebViewClient mClient;
@@ -157,23 +158,17 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 						}
     	    			
     	    		}
-        	    	if(url.contains("login"))
-    	    		{
-//    	    			 SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//    	    			 SharedPreferences.Editor editor = userInfoPreferences.edit();
-//    	    			 editor.putBoolean("activated", false);
-//    	    			  success = editor.commit();
-    	    			  setActivated(false);
-    	    			  
-    		    			
+        	    	if(url.contains("login") || url.contains("http://kabbalahgroup.info/internet/en/"))
+    	    		{   	    			 
+    	    			  setActivated(false);	
     	    		}
         	    	else
         	    	{
-//        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//        	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
-//    	    			 editor.putBoolean("activated", true);
-//    	    			  success = editor.commit();
+        	    		
+        	    		       
     	    			  setActivated(true);
+    	    			 
+     		    			
         	    	}
         	         view.loadUrl(url);
         	        return true;
@@ -191,17 +186,42 @@ public class WebLogin extends Activity implements WebCallbackInterface {
         	    	Log.v("WebViewClient","page finished");
         	    	if(url.contains("http://kabbalahgroup.info/"))
         	    	{
-        	    		//remove the type of login
-        	    		//mLoginwebView.loadUrl("javascript:(function() { " + "document.getElementsByTag('fieldset')[0].style.display = 'none'; " + "})()");
-        	    		//mLoginwebView.loadUrl("javascript:(function() { " + "elem = document.getElementsByTag('fieldset'); if (elem) {elem.style.display = 'none; ';})()");
+        	    		
+        	    	
         	    	}
         	    	//check what language what clicked
         	    	if(url.contains("http://kabbalahgroup.info/internet/en/mobile") || url.contains("http://icecast.kab.tv"))
         	    	{
-//        	    		SharedPreferences userInfoPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//       	    		 SharedPreferences.Editor editor = userInfoPreferences.edit();
-//   	    			 editor.putBoolean("activated", true);
-//   	    			  Boolean success = editor.commit();
+        	    		if(getActivated() && getGroup().length()==0)
+        	    		{
+        	    		 AlertDialog.Builder alert = new AlertDialog.Builder(WebLogin.this);                 
+     	 	        	 alert.setTitle("Group name");  
+     	 	        	 alert.setMessage("Please enter group name:");                
+
+     	 	        	  // Set an EditText view to get user input   
+     	 	        	  final EditText input = new EditText(WebLogin.this); 
+     	 	        	  alert.setView(input);
+
+     	 	        	     alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+     	 	        	     public void onClick(DialogInterface dialog, int whichButton) {  
+     	 	        	         String value = input.getText().toString();
+     	 	        	         setGroup(value);
+     	 	        	         Log.d( "Login", "Group member : " + value);
+     		        	         return;                  
+     		        	        }  
+     		        	      });  
+
+     		        	     alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+     		        	         public void onClick(DialogInterface dialog, int which) {
+     		        	             // TODO Auto-generated method stub
+     		        	             return;   
+     		        	         }
+     		        	     });
+     		        	             alert.show();
+        	    		}     
+        	    		
+        	    		
    	    			 setActivated(true);
    	    			  
         	    		//if got here then move to video
@@ -415,6 +435,26 @@ public class WebLogin extends Activity implements WebCallbackInterface {
 		edit.commit();
     }
 	
+	private boolean getActivated()
+    {
+    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+		return shared.getBoolean("activated", false);
+    }
+	
+	private void setGroup(String val)
+    {
+    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+		SharedPreferences.Editor edit = shared.edit();
+		edit.putString("group", val);
+		edit.commit();
+    }
+	
+	private String getGroup()
+    {
+    	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
+		return shared.getString("group", "");
+    }
+	
    
 //    @Override
 //	  public void onResume() {
@@ -597,12 +637,13 @@ public void onResume()
       //parse key
       if(content!=null)
       {
-     	 int i = content.indexOf("special-")+"special-".length() ;
-     	 if(i==-1)
+     	 int i = content.indexOf("special-") ;
+     	 if(i==-1 || content.length()<i+8)
      	 {
      		Toast.makeText(this, "No valid broadcast, please try again later",5);
      		return;
      	 }
+     	 i+= "special-".length();
      	 String key = content.substring(i, i+8);
      	 setKey(key);
       }

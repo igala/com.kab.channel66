@@ -35,6 +35,8 @@ public class BackgroundPlayer extends Service {
 		
 		//String url = "http://icecast.kab.tv/heb.mp3"; // your URL here
 		final String url = intent.getStringExtra("audioUrl");
+		if(url==null)
+			return 1;
 		 mediaPlayer = new MediaPlayer();
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		

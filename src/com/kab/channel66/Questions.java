@@ -19,6 +19,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -46,7 +47,7 @@ public class Questions extends Dialog {
 				// TODO Auto-generated method stub
 				//preform question, format the question
 				postData();
-				
+				dismiss();
 				
 				
 			}
@@ -54,27 +55,25 @@ public class Questions extends Dialog {
 		// TODO Auto-generated constructor stub
 	}
 
+	@SuppressWarnings("unchecked")
 	public void postData() {
 	    // Create a new HttpClient and Post Header
-	    HttpClient httpclient = new DefaultHttpClient();
-	    HttpPost httppost = new HttpPost("http://www.kab.tv/ask.php?lang=Hebrew");
-
-	    try {
+	   
+	   
 	        // Add your data
-	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+	        ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 	        nameValuePairs.add(new BasicNameValuePair("QName", name.getText().toString()));
 	        nameValuePairs.add(new BasicNameValuePair("QFrom", from.getText().toString()));
-	        nameValuePairs.add(new BasicNameValuePair("QQuestion", question.toString()));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-	        // Execute HTTP Post Request
-	        HttpResponse response = (HttpResponse) httpclient.execute(httppost);
+	        nameValuePairs.add(new BasicNameValuePair("QQuestion", question.getText().toString()));
+	        nameValuePairs.add(new BasicNameValuePair("ask", "1"));
+	        nameValuePairs.add(new BasicNameValuePair("is_hidden", "0"));
+	        nameValuePairs.add(new BasicNameValuePair("isquestion", "1"));
 	        
-	    } catch (ClientProtocolException e) {
-	        // TODO Auto-generated catch block
-	    } catch (IOException e) {
-	        // TODO Auto-generated catch block
-	    }
+	        
+	       
+	        new QuestionPoster().execute(nameValuePairs);
+	       
+	        
 	} 
 
 }

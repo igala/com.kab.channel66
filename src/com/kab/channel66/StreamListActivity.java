@@ -31,6 +31,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -46,7 +48,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class StreamListActivity extends ListActivity {
+public class StreamListActivity extends BaseListActivity {
 
 	private ServiceConnection connection = new ServiceConnection() {
 		@Override
@@ -583,4 +585,10 @@ public class StreamListActivity extends ListActivity {
 	 		Item.setTitle(getResources().getString(R.string.quality)+": Medium");	
 	 	return true;
 	 }
+	 
+	 public boolean isOnline(Context context) { 
+		    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);    
+		    NetworkInfo netInfo = cm.getActiveNetworkInfo();    
+		    return netInfo != null && netInfo.isConnected();
+		}
 }

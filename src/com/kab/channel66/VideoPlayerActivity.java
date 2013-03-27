@@ -327,13 +327,13 @@ public class VideoPlayerActivity extends Activity implements OnCompletionListene
 	  EasyTracker.getInstance().activityStop(this); // Add this method.
 	}
 	
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//	    MenuInflater inflater = getMenuInflater();
-//	    inflater.inflate(R.menu.video_menu, menu);
-//	    return true;
-//		 
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.video_menu, menu);
+	    return true;
+		 
+	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

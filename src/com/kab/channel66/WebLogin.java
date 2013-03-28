@@ -196,7 +196,7 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
         	    		{
         	    		 AlertDialog.Builder alert = new AlertDialog.Builder(WebLogin.this);                 
      	 	        	 alert.setTitle("Group name");  
-     	 	        	 alert.setMessage("Please enter group name:");                
+     	 	        	 alert.setMessage("Please enter group name you belong:");                
 
      	 	        	  // Set an EditText view to get user input   
      	 	        	  final EditText input = new EditText(WebLogin.this); 
@@ -207,6 +207,8 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
      	 	        	         String value = input.getText().toString();
      	 	        	         setGroup(value);
      	 	        	         Log.d( "Login", "Group member : " + value);
+     	 	        	         EasyTracker.getTracker().trackEvent("Group", "name", value,0L);
+      	    				 
      		        	         return;                  
      		        	        }  
      		        	      });  

@@ -89,6 +89,7 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
 	JSONObject serverJSON = null;
 	String content = null;
 	Dialog playDialog;
+	AlertDialog.Builder alert;
 	Intent svc;
 	public class JavaScriptInterface {
 	    Context mContext;
@@ -123,7 +124,7 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
         PushService.setDefaultPushCallback(this, WebLogin.class);
         
         mLoginwebView = (WebView) findViewById(R.id.webloginview);
-       
+       if(mClient == null)
         mClient = new WebViewClient()
         	{
         	    @Override
@@ -158,14 +159,15 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
 						}
     	    			
     	    		}
-        	    	if(url.contains("login") || url.contains("http://kabbalahgroup.info/internet/en/"))
+        	    	if(url.contains("login") )
     	    		{   	    			 
     	    			  setActivated(false);	
     	    		}
         	    	else
         	    	{
         	    		
-        	    		       
+        	    		
+        	    		     
     	    			  setActivated(true);
     	    			 
      		    			
@@ -192,9 +194,11 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
         	    	//check what language what clicked
         	    	if(url.contains("http://kabbalahgroup.info/internet/en/mobile") || url.contains("http://icecast.kab.tv"))
         	    	{
-        	    		if(getActivated() && getGroup().length()==0)
+        	    		if(getActivated() && getGroup().length()==0)// && url.contains("http://kabbalahgroup.info/internet/en/mobile"))
         	    		{
-        	    		 AlertDialog.Builder alert = new AlertDialog.Builder(WebLogin.this);                 
+        	    		if(alert==null)
+        	    		{	
+        	    		 alert = new AlertDialog.Builder(WebLogin.this);                 
      	 	        	 alert.setTitle("Group name");  
      	 	        	 alert.setMessage("Please enter group name you belong:");                
 
@@ -208,7 +212,7 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
      	 	        	         setGroup(value);
      	 	        	         Log.d( "Login", "Group member : " + value);
      	 	        	         EasyTracker.getTracker().trackEvent("Group", "name", value,0L);
-      	    				 
+     	 	        	         alert = null;
      		        	         return;                  
      		        	        }  
      		        	      });  
@@ -217,11 +221,14 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
 
      		        	         public void onClick(DialogInterface dialog, int which) {
      		        	             // TODO Auto-generated method stub
+     		        	        	 alert = null;
      		        	             return;   
      		        	         }
      		        	     });
      		        	             alert.show();
-        	    		}     
+     		        	             return;
+        	    		}   
+        	    	}
         	    		
         	    		
    	    			 setActivated(true);
@@ -304,6 +311,7 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
         	        	    		//background audio player
         	        	    		 svc=new Intent(WebLogin.this, BackgroundPlayer.class);
         	        		    	 svc.putExtra("audioUrl", url);
+        	        		    	 svc.putExtra("sviva", true);
         	        	            startService(svc);
         	        	            playDialog = new Dialog(WebLogin.this);
         	        	            playDialog.setTitle("Playing audio");
@@ -588,7 +596,7 @@ public boolean onOptionsItemSelected(MenuItem item) {
         case R.id.quality:
         	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(WebLogin.this);
         	SharedPreferences.Editor edit = shared.edit();
-        	if(shared.getBoolean("quality", true))
+        	if(shared.getBoolean("quality", false))
          	{
          		Toast.makeText(WebLogin.this, "Changed quality to medium", Toast.LENGTH_LONG).show();
          		edit.putBoolean("quality", false);

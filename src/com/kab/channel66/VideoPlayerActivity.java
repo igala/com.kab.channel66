@@ -110,11 +110,17 @@ public class VideoPlayerActivity extends Activity implements OnCompletionListene
 		
 		public void onBufferingUpdate(MediaPlayer arg0, int percent) {
 			// TODO Auto-generated method stub
+			int multiplier;
+			SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(VideoPlayerActivity.this);
+        	if(shared.getBoolean("quality", false))
+				multiplier= 4;
+			else
+				multiplier = 8;
 			if(!progress.isShowing())
 				progress.show();
-			progress.setProgress(percent);
-			progress.setMessage("Buffering "+Integer.toString(percent)+"%");
-			if(percent>98){
+			progress.setProgress(percent*multiplier);
+			progress.setMessage("Buffering "+Integer.toString(multiplier*percent)+"%");
+			if(percent*multiplier>98){
 				progress.hide();
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 				if (mLayout == VideoView.VIDEO_LAYOUT_ZOOM) //this is done due to a bug on some devices that the video won't start if layout is not zoom

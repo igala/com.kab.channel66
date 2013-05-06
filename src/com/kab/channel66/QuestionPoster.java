@@ -14,13 +14,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.parse.signpost.http.HttpResponse;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.database.CursorJoiner.Result;
 import android.os.AsyncTask;
+import android.widget.Toast;
+import android.content.Context;
 
 public class QuestionPoster extends AsyncTask< ArrayList<NameValuePair>, Void, Result> {
 
 	@Override
-	protected Result doInBackground( ArrayList<NameValuePair>... params) {
+	protected Result doInBackground( ArrayList<NameValuePair>... params ) {
 		// TODO Auto-generated method stub
 		 CustomHttpClient httpclient = new CustomHttpClient();
 		    HttpPost httppost = new HttpPost("http://www.kab.tv/ask.php?lang=English");
@@ -49,6 +54,8 @@ public class QuestionPoster extends AsyncTask< ArrayList<NameValuePair>, Void, R
 	        
 		return null;
 	}
+	
+
 
 	
 

@@ -299,6 +299,7 @@ public class StreamListActivity extends BaseListActivity {
             playDialog = new Dialog(this);
             playDialog.setTitle("Playing audio");
             playDialog.setContentView(R.layout.mediacontroller);
+            final ImageButton ask = (ImageButton) playDialog.findViewById(R.id.mediacontroller_ask);
             final ImageButton but = (ImageButton) playDialog.findViewById(R.id.mediacontroller_play_pause);
             but.setImageResource(R.drawable.mediacontroller_pause01);
             but.setOnClickListener(new OnClickListener() {
@@ -321,6 +322,17 @@ public class StreamListActivity extends BaseListActivity {
 					}
 				}
 			});
+            ask.setImageResource(R.drawable.system_help);
+            ask.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					Questions question = new Questions(StreamListActivity.this);
+		        	question.show();
+				}
+			});
+            
             playDialog.setOnCancelListener(new DialogInterface.OnCancelListener()
             {
                 @Override
@@ -526,12 +538,15 @@ public class StreamListActivity extends BaseListActivity {
 	        	     alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 	        	     public void onClick(DialogInterface dialog, int whichButton) {  
 	        	         String value = input.getText().toString();
+	        	         EasyTracker.getTracker().trackEvent("Stream list", "pin code value",value,0L);
+		      				
 	        	         if(value.equals("arvut"))
 	        	         {
 	        	        	 Intent intent = new Intent(getApplicationContext(), WebLogin.class);
 	        		            startActivity(intent);
 	        	         }
 	        	         Log.d( "Login", "Pin Value : " + value);
+	        	        
 	        	         return;                  
 	        	        }  
 	        	      });  
@@ -554,7 +569,7 @@ public class StreamListActivity extends BaseListActivity {
 	         case R.id.quality:
 	         	SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(StreamListActivity.this);
 	         	SharedPreferences.Editor edit = shared.edit();
-	         	if(shared.getBoolean("quality", true))
+	         	if(shared.getBoolean("quality", false))
 	         	{
 	         		Toast.makeText(StreamListActivity.this, "Changed quality to medium", Toast.LENGTH_LONG).show();
 	         		edit.putBoolean("quality", false);

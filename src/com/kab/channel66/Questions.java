@@ -24,12 +24,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class Questions extends Dialog {
 	private EditText question;
 	private EditText from;
 	private EditText name;
 	private Button ask;
+	public Context mContext; 
 	
 	public Questions(Context context) {
 		super(context);
@@ -38,7 +40,7 @@ public class Questions extends Dialog {
 		from = (EditText) findViewById(R.id.et_from);
 		name = (EditText) findViewById(R.id.et_name);
 		ask = (Button) findViewById(R.id.btn_ask);
-		
+		mContext = context;
 		
 		ask.setOnClickListener(new View.OnClickListener() {
 			
@@ -72,6 +74,7 @@ public class Questions extends Dialog {
 	        
 	       
 	        new QuestionPoster().execute(nameValuePairs);
+	        Toast.makeText(mContext, "Sent question successfully", 5);
 	       
 	        
 	} 

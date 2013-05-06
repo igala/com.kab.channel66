@@ -1,8 +1,10 @@
 package com.kab.channel66;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -12,12 +14,19 @@ public class BaseListActivity extends ListActivity {
 	public void onResume()
 	{
 		super.onResume();
-		Dialog blockApp;
-		if(isOnline(this.getApplicationContext()))
+		
+		if(!isOnline(this.getApplicationContext()))
 		{
-			 blockApp = new Dialog(this.getApplicationContext());
-			 blockApp.setTitle("No data connection, application can not work without data");
-			 
+			new AlertDialog.Builder(this)
+		    .setTitle("Data not available")
+		    .setMessage("Appliaction needs data connection")
+		    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // continue with delete
+		        	finish();
+		        	return;
+		        }
+		     }).show();
 		}
 	}
 	 public boolean isOnline(Context context) { 

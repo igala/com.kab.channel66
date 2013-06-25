@@ -493,7 +493,7 @@ public class WebLogin extends BaseActivity implements WebCallbackInterface {
         mLoginwebView.addJavascriptInterface(new JavaScriptInterface(this), "Android");
         
         String url = new String("http://kabbalahgroup.info/");
-        mLoginwebView.loadUrl(url);
+        mLoginwebView.loadUrl(url); 
         
         
         

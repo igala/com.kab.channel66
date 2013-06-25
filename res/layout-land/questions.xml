@@ -1,7 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="410dip"
-    android:layout_marginTop="10dip"
+    android:layout_height="200dip"
     android:background="#DDDDDD">
     <TextView
         android:id="@+id/name"
@@ -11,7 +10,7 @@
         android:textColor="#444444"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="9dip"
-        android:layout_marginTop="20dip"
+        android:layout_marginTop="10dip"
         android:layout_marginLeft="10dip"
         android:text="Name:"/>
     <EditText
@@ -30,7 +29,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@id/name"
         android:layout_marginRight="9dip"
-        android:layout_marginTop="15dip"
+        android:layout_marginTop="10dip"
         android:layout_marginLeft="10dip"
         android:text="From:"/>
     <EditText
@@ -51,14 +50,14 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@id/from"
         android:layout_marginRight="9dip"
-        android:layout_marginTop="15dip"
+        android:layout_marginTop="10dip"
         android:layout_marginLeft="10dip"
         android:text="Question:"/>
 
     <EditText
         android:id="@+id/et_question"
         android:layout_width="220dip"
-        android:layout_height="200dip"
+        android:layout_height="100dip"
         android:layout_below="@id/question"
         android:layout_marginLeft="17dip"
         android:background="@android:drawable/editbox_background"
@@ -66,12 +65,10 @@
 
     <Button
         android:id="@+id/btn_ask"
-        android:layout_width="100dip"
+        android:layout_width="50dip"
         android:layout_height="wrap_content"
-        android:layout_below="@id/et_question"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="15dip"
-        android:layout_marginLeft="110dip"
+        android:layout_toRightOf="@id/et_name"
+        android:layout_marginTop="10dip"
         android:text="Ask" />
      <TextView
         android:id="@+id/tv_error"

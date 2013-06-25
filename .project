@@ -30,11 +30,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>assets/KL_ST_android.jpg</name>
-			<type>1</type>
-			<location>C:/Documents and Settings/igal/My Documents/Downloads/KL_ST_android.jpg</location>
-		</link>
-	</linkedResources>
 </projectDescription>

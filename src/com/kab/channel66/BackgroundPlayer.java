@@ -2,12 +2,17 @@ package com.kab.channel66;
 
 import java.io.IOException;
 
+import com.kab.channel66.utils.CallStateInterface;
+import com.kab.channel66.utils.CallStateListener;
+
+import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.location.GpsStatus.NmeaListener;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -17,19 +22,30 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.ViewDebug.FlagToString;
 
-public class BackgroundPlayer extends Service implements OnPreparedListener,OnBufferingUpdateListener{
+public class BackgroundPlayer extends Service implements OnPreparedListener,OnBufferingUpdateListener,CallStateInterface{
 
 	private static final int NOTIFICATION_ID = 0;
+	private CallStateListener calllistener;
 	private static MediaPlayer mediaPlayer;
 	NotificationManager mNM;
 	Thread thread;
+	StreamProxy sp; //adding streamproxy to solve audio failure of some devices before ics - http://stackoverflow.com/questions/9840523/mediaplayer-streams-mp3-in-emulator-but-not-on-device
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
-		 
+		
+		TelephonyManager telephony = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object  
+		calllistener = new CallStateListener(this); 
+        telephony.listen(calllistener, PhoneStateListener.LISTEN_CALL_STATE); //Register our listener with TelephonyManager
+		sp = new StreamProxy();
+		sp.init();
+		sp.start();
+		
 		String songName;
 		Class <?> cls;
 		if(intent.getBooleanExtra("sviva", false))
@@ -207,6 +223,7 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 	    	mediaPlayer.stop();
 	    	mediaPlayer.release();
 	    	mediaPlayer = null;
+	    	sp.stop();
 	    }
 	    
 	    stopForeground(true);
@@ -220,5 +237,29 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 		// TODO Auto-generated method stub
 		
 		Log.d("audio","test");
+	}
+
+	@Override
+	public void Pause() {
+		// TODO Auto-generated method stub
+		mediaPlayer.pause();
+	}
+
+	@Override
+	public void Start() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void Resume() {
+		// TODO Auto-generated method stub
+		mediaPlayer.start();
+	}
+
+	@Override
+	public void Stop() {
+		// TODO Auto-generated method stub
+		
 	}
 }

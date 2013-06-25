@@ -120,12 +120,13 @@ public class VideoPlayerActivity extends Activity implements OnCompletionListene
 				progress.show();
 			progress.setProgress(percent*multiplier);
 			progress.setMessage("Buffering "+Integer.toString(multiplier*percent)+"%");
-			if(percent*multiplier>98){
+			if(percent*multiplier>=92){
 				progress.hide();
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 				if (mLayout == VideoView.VIDEO_LAYOUT_ZOOM) //this is done due to a bug on some devices that the video won't start if layout is not zoom
 					mLayout = VideoView.VIDEO_LAYOUT_SCALE;
-					mVideoView.setVideoLayout(mLayout, 0);
+				mVideoView.setVideoLayout(mLayout, 0);
+				arg0.start();
 				
 			}
 		}

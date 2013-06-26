@@ -19,6 +19,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -42,10 +43,28 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 		TelephonyManager telephony = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object  
 		calllistener = new CallStateListener(this); 
         telephony.listen(calllistener, PhoneStateListener.LISTEN_CALL_STATE); //Register our listener with TelephonyManager
-		sp = new StreamProxy();
-		sp.init();
-		sp.start();
+        String url = intent.getStringExtra("audioUrl");
+		if(url==null)
+			return 1;
 		
+		
+		int sdkVersion = 0;
+	    try {
+	      sdkVersion = Integer.parseInt(Build.VERSION.SDK);
+	    } catch (NumberFormatException e) { }
+
+		if ( sdkVersion <= 10) {
+		      if (sp == null) {
+		        sp = new StreamProxy();
+		        sp.init();
+		        sp.start();
+		      }
+		      String proxyUrl = String.format("http://127.0.0.1:%d/%s",
+			          sp.getPort(), url);
+		      url = proxyUrl;
+		    }
+
+
 		String songName;
 		Class <?> cls;
 		if(intent.getBooleanExtra("sviva", false))
@@ -84,9 +103,7 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 
 		
 		//String url = "http://icecast.kab.tv/heb.mp3"; // your URL here
-		final String url = intent.getStringExtra("audioUrl");
-		if(url==null)
-			return 1;
+		
 //		 mediaPlayer = new MediaPlayer();
 		mediaPlayer = new MediaPlayer();
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -223,7 +240,8 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 	    	mediaPlayer.stop();
 	    	mediaPlayer.release();
 	    	mediaPlayer = null;
-	    	sp.stop();
+	    	if(sp!=null)
+	    		sp.stop();
 	    }
 	    
 	    stopForeground(true);

@@ -24,7 +24,7 @@ public class CallStateListener extends PhoneStateListener {
      switch (state) {
          case TelephonyManager.CALL_STATE_RINGING:
          // called when someone is ringing to this phone
-         m_player.Pause();
+        	 m_player.Pause();
          
          break;
          case TelephonyManager.CALL_STATE_IDLE:

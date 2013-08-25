@@ -1,5 +1,8 @@
 package com.kab.channel66;
 
+import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
+import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
+
 import java.io.IOException;
 
 import com.kab.channel66.utils.CallStateInterface;
@@ -30,9 +33,10 @@ import android.view.ViewDebug.FlagToString;
 
 public class BackgroundPlayer extends Service implements OnPreparedListener,OnBufferingUpdateListener,CallStateInterface{
 
+	TelephonyManager telephony;
 	private static final int NOTIFICATION_ID = 0;
 	private CallStateListener calllistener;
-	private static MediaPlayer mediaPlayer;
+	private  io.vov.vitamio.MediaPlayer mediaPlayer;
 	NotificationManager mNM;
 	Thread thread;
 	StreamProxy sp; //adding streamproxy to solve audio failure of some devices before ics - http://stackoverflow.com/questions/9840523/mediaplayer-streams-mp3-in-emulator-but-not-on-device
@@ -40,9 +44,13 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
 		
-		TelephonyManager telephony = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object  
+		telephony = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object  
 		calllistener = new CallStateListener(this); 
-        telephony.listen(calllistener, PhoneStateListener.LISTEN_CALL_STATE); //Register our listener with TelephonyManager
+       if(intent==null)
+       {
+    	   //defaulting to channel 66
+    	   
+       }
         String url = intent.getStringExtra("audioUrl");
 		if(url==null)
 			return 1;
@@ -105,8 +113,26 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 		//String url = "http://icecast.kab.tv/heb.mp3"; // your URL here
 		
 //		 mediaPlayer = new MediaPlayer();
-		mediaPlayer = new MediaPlayer();
-		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		try {
+			mediaPlayer = new io.vov.vitamio.MediaPlayer(this);
+		} catch (VitamioNotCompatibleException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (VitamioNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//		mediaPlayer.setOnBufferingUpdateListener(new OnBufferingUpdateListener() {
+//			
+//			@Override
+//			public void onBufferingUpdate(MediaPlayer mp, int percent) {
+//				// TODO Auto-generated method stub
+//				if(percent>50)
+//					mediaPlayer.start();
+//			}
+//		});
+		
 		try {
 			mediaPlayer.setDataSource(url);
 		} catch (IllegalArgumentException e) {
@@ -125,9 +151,19 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 
 		
 		 //mediaPlayer.reset();
-		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-		mediaPlayer.setOnPreparedListener(this);
-		mediaPlayer.prepareAsync();
+		//mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		//mediaPlayer.setOnPreparedListener(this);
+//		mediaPlayer.prepareAsync();
+		try {
+			mediaPlayer.prepare();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		mediaPlayer.start();
 		
 //		
 //		
@@ -170,6 +206,7 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 	public void onPrepared(MediaPlayer player) {
         // We now have buffered enough to be able to play
 		player.start();
+		telephony.listen(calllistener, PhoneStateListener.LISTEN_CALL_STATE); //Register our listener with TelephonyManager
     }
 	/*
 	private void addNotification()
@@ -280,4 +317,6 @@ public class BackgroundPlayer extends Service implements OnPreparedListener,OnBu
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 }

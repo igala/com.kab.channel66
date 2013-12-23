@@ -742,13 +742,14 @@ public void onResume()
       //parse key
       if(content!=null)
       {
-     	 int i = content.indexOf("special-") ;
+     	 int i = content.indexOf("\"secret_word\":\"") ;
+     	
      	 if(i==-1 || content.length()<i+8)
      	 {
      		Toast.makeText(this, "No valid broadcast, please try again later",5);
      		return;
      	 }
-     	 i+= "special-".length();
+     	 i+= "\"secret_word\":\"".length();
      	 String key = content.substring(i, i+8);
      	 setKey(key);
       }

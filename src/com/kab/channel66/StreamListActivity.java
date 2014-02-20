@@ -1,7 +1,9 @@
 package com.kab.channel66;
 
-import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
-import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
+//import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
+//import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
+
+import io.vov.vitamio.LibsChecker;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.apphance.android.Log;
@@ -19,6 +22,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.myjson.Gson;
 import com.kab.channel66.Events.Page;
 import com.kab.channel66.Events.Pages;
+import com.kab.channel66.utils.CommonUtils;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -70,6 +74,16 @@ public class StreamListActivity extends BaseListActivity {
 	public void onCreate(Bundle icicle) {
 	    super.onCreate(icicle);
 	    
+	    //remove old plugin library
+
+
+	    CommonUtils.RemoveOldPlugin(this);
+	    
+	    if (!LibsChecker.checkVitamioLibs(this))
+			return;
+	    
+	    
+	    /*
         try {
         	
         	
@@ -125,7 +139,7 @@ public class StreamListActivity extends BaseListActivity {
 			chooseToInstall.show();
 			e.printStackTrace();
 		}
-	    
+	    */
 	    ArrayList<String> channels = new ArrayList<String>();
 	    channels = getIntent().getStringArrayListExtra("channel");
 	    ArrayList<String> description = new ArrayList<String>();
@@ -456,7 +470,13 @@ public class StreamListActivity extends BaseListActivity {
 //	 	}
 //	 	return true;
 //	 }
-	 
+	 @Override
+	 public void onResume() {
+	   super.onResume();
+	   if (!LibsChecker.checkVitamioLibs(this))
+			return;
+	   
+	 }
 	 @Override
 	 public void onStart() {
 	   super.onStart();

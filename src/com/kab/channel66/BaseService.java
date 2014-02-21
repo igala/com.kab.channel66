@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.widget.Toast;
 
 public class BaseService extends Service {
 
@@ -16,9 +17,10 @@ public class BaseService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
 		if(!checkConnectivity())
-			stopSelf();
+		{
+			return 0;
+		}
 		return startId;
-		
 	}
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -32,20 +34,21 @@ public class BaseService extends Service {
 		boolean state;
 		if(!(state = isOnline(BaseService.this)))
 		{
-			new AlertDialog.Builder(this)
-		    .setTitle("Data not available")
-		    .setMessage("Appliaction needs data connection")
-		    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int which) { 
-		            // continue with delete
-		        	return;
-		        	
-		        }
-		     })
-		    
-		    
-		     .show();
+//			new AlertDialog.Builder(this)
+//		    .setTitle("Data not available")
+//		    .setMessage("Appliaction needs data connection")
+//		    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//		        public void onClick(DialogInterface dialog, int which) { 
+//		            // continue with delete
+//		        	return;
+//		        	
+//		        }
+//		     })
+//		    
+//		    
+//		     .show();
 			
+			Toast.makeText(getApplicationContext(), "No data connection", Toast.LENGTH_LONG).show();
 			return false;
 		}
 		return true;

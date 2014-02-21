@@ -52,7 +52,8 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
 		
-		super.onStartCommand(intent, flags, startId);
+		if(super.onStartCommand(intent, flags, startId)==0)
+				return START_NOT_STICKY;
 		telephony = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object  
 		calllistener = new CallStateListener(this); 
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -233,7 +234,8 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 	                //Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG).show();
 	            }else{
 	                Toast.makeText(getApplicationContext(), "Lost data connection", Toast.LENGTH_LONG).show();
-	                BackgroundPlayer.this.mediaPlayer.stop();
+	                if( BackgroundPlayer.this.mediaPlayer!=null)
+	                	BackgroundPlayer.this.mediaPlayer.stop();
 	                BackgroundPlayer.this.stopSelf();
 	            }
 	        }
@@ -266,10 +268,11 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 	    	mediaPlayer = null;
 	    	if(sp!=null)
 	    		sp.stop();
+	    	mNM.cancel(NOTIFICATION_ID);
 	    }
 	    
 	    stopForeground(true);
-	    mNM.cancel(NOTIFICATION_ID);
+	    
 	    
 
 	}

@@ -3,13 +3,17 @@ package com.kab.channel66;
 //import io.vov.vitamio.VitamioInstaller.VitamioNotCompatibleException;
 //import io.vov.vitamio.VitamioInstaller.VitamioNotFoundException;
 
+
 import io.vov.vitamio.LibsChecker;
+import io.vov.vitamio.activity.InitActivity;
 
 import java.io.IOException;
 
 import com.kab.channel66.utils.CallStateInterface;
 import com.kab.channel66.utils.CallStateListener;
+import com.kab.channel66.utils.CommonUtils;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,6 +23,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.location.GpsStatus.NmeaListener;
 import android.media.AudioManager;
@@ -30,6 +36,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
@@ -51,7 +58,8 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
-		
+		if(flags==CommonUtils.FROM_WIDGET)
+			LibsChecker.checkVitamioLibs(this);
 		if(super.onStartCommand(intent, flags, startId)==0)
 				return START_NOT_STICKY;
 		telephony = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE); //TelephonyManager object  
@@ -135,6 +143,7 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 		
 		try {
 			mediaPlayer.setDataSource(url);
+			SetAudioUrl(url, getApplicationContext());
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -218,6 +227,9 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 	public void onCreate() {
 
 	    super.onCreate();
+//	    Intent intent = new Intent(this,InitActivity.class);
+//	    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//	    startActivity(intent);
 	    registerReceiver(mConnReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)) ;  
 	}
 	
@@ -307,6 +319,15 @@ public class BackgroundPlayer extends BaseService implements OnPreparedListener,
 		// TODO Auto-generated method stub
 		
 	}
+	
+	void SetAudioUrl(String audioUrl, Context context)
+	  {
+		
+		  SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+		  Editor ed = SP.edit();
+		  ed.putString("audiourl", audioUrl);
+		  ed.commit();
+	  }
 	
 	
 }

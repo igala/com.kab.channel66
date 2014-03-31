@@ -160,7 +160,7 @@ public class StreamListActivity extends BaseListActivity {
 	    	
 	    	description.add("ערוץ 66 - וידאו");
 	    	description.add("ערוץ 66 - אודיו");
-	    	
+	    	description.add("רדיו ערוץ 66");
 	    	
 	    	description.add("Канал 66 на Русском - Видео");
 	    	description.add("Канал 66 на Русском - Аудио");
@@ -202,6 +202,8 @@ public class StreamListActivity extends BaseListActivity {
 	    		
 	    		//set the quality
 	    		Boolean high = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("quality", false);
+	    		if(pages.get(i).urls.urlslist.size()>1)
+	    		{
 	    		if(!high)
 	    		{
 	    			 url1 = pages.get(i).urls.urlslist.get(1).url_value;
@@ -210,6 +212,9 @@ public class StreamListActivity extends BaseListActivity {
 	    		{
 	    			 url1 = pages.get(i).urls.urlslist.get(0).url_value;
 	    		}
+	    		}
+	    		else
+	    			url1 = pages.get(i).urls.urlslist.get(0).url_value;
 	    		
 	    		//playvideo
 	    		String mms_url = null;
@@ -305,10 +310,13 @@ public class StreamListActivity extends BaseListActivity {
          	}
 				 
 	    	}
-	    else if(item.equals("ערוץ 66 - אודיו"))
+	    else if(item.equals("ערוץ 66 - אודיו") || item.equals("רדיו ערוץ 66"))
     	{
 	    	 svc=new Intent(this, BackgroundPlayer.class);
-	    	 svc.putExtra("audioUrl", "http://icecast.kab.tv/heb.mp3");
+	    	 if(item.equals("ערוץ 66 - אודיו"))
+	    		 svc.putExtra("audioUrl", "http://icecast.kab.tv/heb.mp3");
+	    	 else
+	    		 svc.putExtra("audioUrl", "http://icecast.kab.tv/radiozohar2014.mp3");
             startService(svc);
             playDialog = new Dialog(this);
             playDialog.setTitle("Playing audio");

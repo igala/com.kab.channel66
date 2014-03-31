@@ -167,17 +167,21 @@
             }
         },
         {
-            "por": {
+            "trk": {
                 "pages": [
                     {
                         "regular": {
                             "state": "active",
-                            "title": "Sviva Tova Portugese",
+                            "title": "Sviva Tova Turkish",
                             "description": "Sviva Tova Portugese",
                             "urls": [
                                 {
                                     "url_quality": "300k",
-                                    "url_value": "http://streams.kab.tv/por-special-yE2ngWB4.asx"
+                                    "url_value": "http://streams.kab.tv/trk-special-yE2ngWB4.asx"
+                                },
+                                {
+                                    "url_quality": "100k",
+                                    "url_value": "http://streams.kab.tv/trk-special-yE2ngWB4_medium.asx"
                                 }
                             ]
                         }
@@ -199,6 +203,10 @@
                                 {
                                     "url_quality": "300k",
                                     "url_value": "http://edge1.il.kab.tv/rtplive/live1-heb-medium.stream/playlist.m3u8"
+                                },
+                                {
+                                    "url_quality": "100k",
+                                    "url_value": "http://edge1.il.kab.tv/rtplive/live1-heb-low.stream/playlist.m3u8"
                                 }
                             ]
                         }
@@ -362,12 +370,12 @@
             }
         },
         {
-            "por": {
+            "trk": {
                 "pages": [
                     {
                         "regular": {
                             "state": "active",
-                            "title": "Sviva Tova Portugese",
+                            "title": "Sviva Tova Turkish",
                             "description": "Sviva Tova Portugese",
                             "urls": [
                                 {

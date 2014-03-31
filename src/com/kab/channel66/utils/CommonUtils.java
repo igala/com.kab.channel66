@@ -3,18 +3,23 @@ package com.kab.channel66.utils;
 import java.util.List;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 
+import com.kab.channel66.BaseActivity;
 import com.kab.channel66.R;
 import com.kab.channel66.StreamListActivity;
 
 public class CommonUtils {
 
+	public static int FROM_WIDGET = 10;
 	public static void RemoveOldPlugin(final Context ct)
 	{
 		 boolean isInstalled = false;
@@ -57,4 +62,19 @@ public class CommonUtils {
 			
 		   }
 	}
+	
+	public static boolean checkConnectivity(Context context)
+	{
+		Dialog blockApp;
+		boolean state;
+		if(!(state = isOnline(context)))
+			return false;
+		return true;
+	}
+	 public static boolean isOnline(Context context) { 
+		    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);    
+		    NetworkInfo netInfo = cm.getActiveNetworkInfo();    
+		    return netInfo != null && netInfo.isConnected();
+		}
+	 
 }
